@@ -19,23 +19,23 @@ import raven.toast.Notifications;
  * @author PHC
  */
 public class FormDashboard extends javax.swing.JPanel {
+
     private List<JCheckBox> checkBoxList;
+
     /**
      * Creates new form FormDashboard
      */
     public FormDashboard() {
         initComponents();
-             //열목록 체크박스 초기화및 설정 
+        //열목록 체크박스 초기화및 설정 
         initializeCheckBoxList();
         setCheckBoxTexts();
         HeaderSelectPanel.revalidate();
         HeaderSelectPanel.repaint();
 //        
     }
-   
-    
-    
-      private void initializeCheckBoxList() {
+
+    private void initializeCheckBoxList() {
         checkBoxList = new ArrayList<>();
         // 체크박스들을 리스트에 추가
         checkBoxList.add(jCheckBox1);
@@ -82,8 +82,14 @@ public class FormDashboard extends javax.swing.JPanel {
             throw new IllegalStateException("체크박스와 텍스트의 수가 일치하지 않습니다.");
         }
     }
-        public void addjButton1Listener(ActionListener listener) {
+
+    public void addjButton1Listener(ActionListener listener) {
         jButton1.addActionListener(listener);
+
+    }
+
+    public void addjButton2Listener(ActionListener listener) {
+        jButton2.addActionListener(listener);
 
     }
 
@@ -106,7 +112,6 @@ public class FormDashboard extends javax.swing.JPanel {
         }
     }
 
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -518,7 +523,7 @@ public class FormDashboard extends javax.swing.JPanel {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-       
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -536,7 +541,6 @@ public class FormDashboard extends javax.swing.JPanel {
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
-
 
     public JComboBox<String> getjComboBox1() {
         return jComboBox1;
