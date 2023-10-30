@@ -11,7 +11,9 @@ import companydbmanagerant.model.Employee.EmployeeTableModel;
 import companydbmanagerant.view.DataViewUtil;
 import companydbmanagerant.view.DataView;
 import companydbmanagerant.view.Login.LoginForm;
+import companydbmanagerant.view.Main.EmployeeEditPanel;
 import companydbmanagerant.view.Main.FormDashboard;
+import companydbmanagerant.view.Modal.Modal;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,6 +49,7 @@ public class DataController {
         //MainForm -> Dashboard 리스너 관리
         FormDashboard formDashboard = this.view.getMainForm().getFormDashboard();
         formDashboard.addjButton1Listener(new addjButton1Listener());
+        formDashboard.addjButton2Listener(new addjButton2Listener());
         formDashboard.addCheckBoxListeners(createCheckBoxItemListener());
         formDashboard.addjComboBox1Listener(new addjComboBox1Listener());
         formDashboard.addjComboBox2Listener(new addjComboBox2Listener());
@@ -198,7 +201,13 @@ public class DataController {
         }
     }
     
-    
+      class addjButton2Listener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+           Modal modal = new Modal(view,new EmployeeEditPanel(),"exitBtn");
+        }
+    }
 //-------------------------------------------------------
 //-- FormDashboard의 콤보박스 상호작용 로직 --------------
 //-------------------------------------------------------
