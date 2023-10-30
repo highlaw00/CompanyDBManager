@@ -35,7 +35,6 @@ public class LoginForm extends javax.swing.JPanel {
 
     public LoginForm() {
         initComponents();
-        JPanel tagsPanel = new JPanel();
         init();
         FlatLaf.updateUI();
     }
