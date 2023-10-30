@@ -36,27 +36,11 @@ public class LoginForm extends javax.swing.JPanel {
     public LoginForm() {
         initComponents();
         JPanel tagsPanel = new JPanel();
-        tagsPanel.setLayout(new FlowLayout());
-        add(tagsPanel);
-        addTag("ssn=213033000 AND salary > 3000", tagsPanel);
-        addTag("ssn=213033000 AND salary > 3000", tagsPanel);
         init();
-        tagsPanel.setVisible(true);
         FlatLaf.updateUI();
     }
 
-    public void addTag(String text, JPanel panel) {
-        JButton tag = new JButton(text);
-        tag.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                panel.remove(tag);
-                panel.revalidate();
-                panel.repaint();
-            }
-        });
-        panel.add(tag);
-    }
+
 
     private void init() {
         setLayout(new LoginFormLayout());
