@@ -37,6 +37,7 @@ public class LoginForm extends javax.swing.JPanel {
         initComponents();
         init();
         FlatLaf.updateUI();
+        txtPass.setText("qwer123");  //패스워드 임시 대입
     }
 
 

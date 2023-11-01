@@ -4,14 +4,36 @@
  */
 package companydbmanagerant.view.Main;
 
+import companydbmanagerant.view.Main.TableModel.EmployeeTableModel;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLayer;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.plaf.LayerUI;
+import javax.swing.table.TableModel;
 import raven.toast.Notifications;
 
 /**
@@ -21,6 +43,7 @@ import raven.toast.Notifications;
 public class FormDashboard extends javax.swing.JPanel {
 
     private List<JCheckBox> checkBoxList;
+    JLayer<JScrollPane> jlayer;
 
     /**
      * Creates new form FormDashboard
@@ -32,7 +55,132 @@ public class FormDashboard extends javax.swing.JPanel {
         setCheckBoxTexts();
         HeaderSelectPanel.revalidate();
         HeaderSelectPanel.repaint();
-//        
+        setDrawCellEdited();
+    }
+
+    private void setDrawCellEdited() {
+
+
+        LayerUI<JScrollPane> layerUI = new LayerUI<JScrollPane>() {
+            @Override
+            public void paint(Graphics g, JComponent c) {
+                super.paint(g, c);
+
+                if (EmployeeTable == null) {
+                    // EmployeeTable이 초기화되지 않았으므로 함수를 종료
+                    return;
+                }
+                TableModel currentModel = EmployeeTable.getModel();
+                if (!(currentModel instanceof EmployeeTableModel)) {
+                    // 모델이 EmployeeTableModel이 아닌 경우 함수를 종료
+                    return;
+                }
+                
+                EmployeeTableModel model = (EmployeeTableModel) currentModel;
+                Graphics2D g2d = (Graphics2D) g;
+                Point viewPosition = jScrollPane1.getViewport().getViewPosition(); // get scroll offset
+                int xOffset = 0;
+                int yOffset = 0; // Adjust y-coordinate as you need
+                for (int row = 0; row < EmployeeTable.getRowCount(); row++) {
+                    for (int column = 0; column < EmployeeTable.getColumnCount(); column++) {
+                        
+                        Object cellValue = EmployeeTable.getValueAt(row, column);
+                        if (model.isEdited(row, column)) { //cellValue != null && 
+                            Rectangle cellRect = EmployeeTable.getCellRect(row, column, false);
+                            cellRect.translate(-viewPosition.x, -viewPosition.y); // adjust for the scroll offset
+                            if (cellRect.y >= 0) { //
+
+                                FontMetrics fm = g.getFontMetrics();
+                                int headerHeight = EmployeeTable.getTableHeader().getHeight();
+                                int stringWidth = fm.stringWidth("Edited");
+                                int stringHeight = fm.getHeight();
+                                float borderWidth = 1.2f;
+                                g2d.setStroke(new BasicStroke(borderWidth));
+
+                                g2d.setColor(new Color(23, 88, 189));
+                                g2d.drawRoundRect(cellRect.x + xOffset, cellRect.y + yOffset + headerHeight, cellRect.width + 1, cellRect.height + 1, 6, 6);
+
+                                //수정해야할 파트
+                                int labelPaddingY = 0;
+                                int labelPaddingX = 4;
+                                int labelHeight = stringHeight + 2 * labelPaddingY;
+                                int labelWidth = stringWidth + 2 * labelPaddingX;
+                                int deletelabelmargin = 2;
+                                int labelX = cellRect.x + xOffset + cellRect.width - labelWidth + deletelabelmargin;
+                                int labelY = cellRect.y + yOffset + headerHeight - labelHeight / 2;
+                                int labelArc = 3;
+
+                                g2d.setColor(new Color(23, 88, 189));
+                                g2d.fillRoundRect(labelX, labelY, labelWidth, labelHeight, labelArc, labelArc);
+
+                                g.setColor(Color.white);
+//                                Font customFont = new Font("Monospaced", Font.PLAIN, 13); // "Arial" 글씨체, 볼드체, 크기 14
+//                                g.setFont(customFont);
+                                g.drawString("Edited", labelX + labelPaddingX, labelY + fm.getAscent());
+
+                            } else if (cellRect.y + cellRect.height > 0) {
+
+                                FontMetrics fm = g.getFontMetrics();
+                                int headerHeight = EmployeeTable.getTableHeader().getHeight();
+                                int stringWidth = fm.stringWidth("Edited");
+                                int stringHeight = fm.getHeight();
+                                float borderWidth = 1.2f;
+                                g2d.setStroke(new BasicStroke(borderWidth));
+                                // 현재 그리기 상태를 저장합니다.
+                                Shape oldClip = g2d.getClip();
+
+                                // 상자의 하단 절반만 그리기 위한 클리핑 영역을 설정합니다.
+                                g2d.clipRect(cellRect.x + xOffset - 5, yOffset + headerHeight, cellRect.width + 1 + 10, cellRect.height - yOffset + headerHeight - cellRect.y);
+                                g2d.setColor(new Color(23, 88, 189));
+                                // 상자를 그립니다. 이제 상자의 윗 부분은 그려지지 않습니다.
+                                g2d.drawRoundRect(cellRect.x + xOffset, cellRect.y + yOffset + headerHeight, cellRect.width + 1, cellRect.height + 1, 6, 6);
+                                // 이전 그리기 상태로 복원합니다.
+                                g2d.setClip(oldClip);
+                            } else {
+                                // System.out.println(cellRect.y);
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        jScrollPane1.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            private int lastValue = -1;
+
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                if (!e.getValueIsAdjusting()) {  // 스크롤 동작이 끝났는지 확인
+                    if (e.getValue() != lastValue) {  // 스크롤 위치가 변경되었는지 확인
+                        lastValue = e.getValue();
+                        jScrollPane1.repaint();  // repaint 호출
+                    }
+                }
+            }
+        });
+
+        // Remove the original jScrollPane1 from the container.
+//        DbMonitorPanel.remove(jScrollPane1);
+        // Create a JLayer using the jScrollPane1 and the custom layerUI.
+        jlayer = new JLayer<>(jScrollPane1, layerUI);
+
+        // DbMonitorPanel의 현재 GroupLayout 가져오기
+        GroupLayout layout = (GroupLayout) DbMonitorPanel.getLayout();
+
+        // 현재 GroupLayout의 설정을 기반으로 jLayer를 추가하기
+        GroupLayout.ParallelGroup horizontalGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jlayer, GroupLayout.DEFAULT_SIZE, 1008, Short.MAX_VALUE)
+                        .addContainerGap());
+
+        GroupLayout.ParallelGroup verticalGroup = layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jlayer, GroupLayout.PREFERRED_SIZE, 270, GroupLayout.PREFERRED_SIZE)
+                        .addGap(35, 35, 35));
+
+        layout.setHorizontalGroup(horizontalGroup);
+        layout.setVerticalGroup(verticalGroup);
     }
 
     private void initializeCheckBoxList() {
