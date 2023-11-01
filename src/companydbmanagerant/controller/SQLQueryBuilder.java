@@ -10,6 +10,12 @@ package companydbmanagerant.controller;
  */
 public class SQLQueryBuilder {
 
+    public static String createFindSSNsQuery() {
+        return "SELECT E.Ssn " +
+            "FROM EMPLOYEE E " ;        
+    }
+        
+        
     public static String createFindNotSubordinatesQuery(String Ssn) {
         return "WITH RECURSIVE Subordinates AS (" +
             "    SELECT E.Ssn " +

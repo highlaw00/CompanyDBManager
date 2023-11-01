@@ -4,6 +4,7 @@
  */
 package companydbmanagerant.view.Main;
 
+import companydbmanagerant.view.Main.*;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.ui.FlatUIUtils;
 import companydbmanagerant.model.Department.Department;
@@ -29,18 +30,18 @@ import javax.swing.event.DocumentListener;
  *
  * @author PHC
  */
-public class EmployeeEditPanel extends javax.swing.JPanel {
+public class EmployeeAddPanel extends javax.swing.JPanel {
 
     Employee employee;
     List<Department> departments;
-    List<String> notSubordinates;
+    List<String> Employees;
 
     /**
      * Creates new form EmployeeEditPanel
      */
-    public EmployeeEditPanel(Employee employee, List<Department> departments, List<String> notSubordinates) {
+    public EmployeeAddPanel(List<Department> departments, List<String> Employees) {
         initComponents();
-        this.notSubordinates = notSubordinates;
+        this.Employees = Employees;
         this.employee = employee;
         this.departments = departments;
         jButton1.setName("exitBtn");
@@ -60,21 +61,20 @@ public class EmployeeEditPanel extends javax.swing.JPanel {
 
     private void setSuperSSNCombo() {
         comboSuperSSN.removeAllItems();
-        for (String superssn : notSubordinates) {
+        for (String superssn : Employees) {
             comboSuperSSN.addItem(superssn);
         }
     }
 
     private void setEmployeeValues() {
-        if (employee != null) {
-            txtAddress.setText(employee.getAddress());
-            txtBirth.setText(new SimpleDateFormat("yyyy-MM-dd").format(employee.getBdate()));
-            txtFirstName.setText(employee.getFname());
-            txtLastName.setText(employee.getLname());
-            txtMinit.setText(employee.getMinit());
-            txtSSN.setText(employee.getSsn());
-            txtSSN.setEnabled(false);
-            txtSalary.setText(String.valueOf(employee.getSalary()));
+            //플레이스홀더 만들어야함
+            txtAddress.setText("");
+            txtBirth.setText("");
+            txtFirstName.setText("");
+            txtLastName.setText("");
+            txtMinit.setText("");
+            txtSSN.setText("");
+            txtSalary.setText("");
             addDocumentListenerToResetBorder(txtAddress);
             addDocumentListenerToResetBorder(txtBirth);
             addDocumentListenerToResetBorder(txtFirstName);
@@ -86,10 +86,10 @@ public class EmployeeEditPanel extends javax.swing.JPanel {
             addItemListenerToResetBorder(comboSEX);
             addItemListenerToResetBorder(comboSuperSSN);
             // JComboBox의 아이템 중에서 employee의 값을 선택합니다.
-            comboDname.setSelectedItem(employee.getDname());
-            comboSEX.setSelectedItem(employee.getSex());
-            comboSuperSSN.setSelectedItem(employee.getSuperSsn());
-        }
+//            comboDname.setSelectedItem(employee.getDname());
+//            comboSEX.setSelectedItem(employee.getSex());
+//            comboSuperSSN.setSelectedItem(employee.getSuperSsn());
+        
 
     }
 
@@ -211,15 +211,15 @@ public class EmployeeEditPanel extends javax.swing.JPanel {
         } else {
             setBorderToValid(txtMinit);
         }
-//
-//        // SSN validation
-//        if (txtSSN.getText().length() != 9 || !txtSSN.getText().matches("\\d{9}")) {
-//            Notifications.getInstance().show(Notifications.Type.ERROR, 2000, "Invalid SSN");
-//            setBorderToError(txtSSN);
-//            isValidate = false;
-//        } else {
-//            setBorderToValid(txtSSN);
-//        }
+
+        // SSN validation
+        if (txtSSN.getText().length() != 9 || !txtSSN.getText().matches("\\d{9}")) {
+            Notifications.getInstance().show(Notifications.Type.ERROR, 2000, "Invalid SSN");
+            setBorderToError(txtSSN);
+            isValidate = false;
+        } else {
+            setBorderToValid(txtSSN);
+        }
 
         // Salary validation
         if (!txtSalary.getText().matches("^-?\\d*(\\.\\d{1,2})?$")) {

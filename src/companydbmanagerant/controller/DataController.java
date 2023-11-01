@@ -11,6 +11,7 @@ import companydbmanagerant.view.Main.TableModel.EmployeeTableModel;
 import companydbmanagerant.view.DataViewUtil;
 import companydbmanagerant.view.DataView;
 import companydbmanagerant.view.Login.LoginForm;
+import companydbmanagerant.view.Main.EmployeeAddPanel;
 import companydbmanagerant.view.Main.EmployeeEditPanel;
 import companydbmanagerant.view.Main.FormDashboard;
 import companydbmanagerant.view.Main.TableModel.CustomCellRenderer;
@@ -61,6 +62,8 @@ public class DataController {
         formDashboard.addjComboBox1Listener(new addjComboBox1Listener());
         formDashboard.addjComboBox2Listener(new addjComboBox2Listener());
         formDashboard.addEmployeeEditBtnListener(new addEmployeeEditBtnListener());
+        formDashboard.addEmployeeAddBtnListener(new addEmployeeAddBtnListener());
+
         //LoginForm 리스너 관리
         this.view.getLoginForm().addCmdLoginListener(new addCmdLoginListener());
 
@@ -230,6 +233,13 @@ public class DataController {
         @Override
         public void actionPerformed(ActionEvent e) {
 
+                model.loadDepartmentsData();
+                List<Department> departments = model.getDepartments();
+
+                String query = SQLQueryBuilder.createFindSSNsQuery();
+                List<String> SSNs = model.findNotSubordinates(query);
+                Modal modal = new Modal(view, new EmployeeAddPanel(departments, SSNs), "exitBtn");
+            
         }
     }
 
@@ -254,7 +264,7 @@ public class DataController {
 
                 String query = SQLQueryBuilder.createFindNotSubordinatesQuery(selectedEmployee.getSsn());
                 List<String> notSubordinates = model.findNotSubordinates(query);
-                Modal modal = new Modal(view, new EmployeeEditPanel(selectedEmployee, departments,notSubordinates), "exitBtn");
+                Modal modal = new Modal(view, new EmployeeEditPanel(selectedEmployee, departments, notSubordinates), "exitBtn");
             }
         }
     }
