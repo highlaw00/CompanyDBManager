@@ -319,9 +319,12 @@
           </Border>
         </Property>
       </Properties>
+      <AccessibilityProperties>
+        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value=""/>
+      </AccessibilityProperties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="6" y="361" width="925" height="-1"/>
+          <AbsoluteConstraints x="40" y="410" width="925" height="-1"/>
         </Constraint>
       </Constraints>
 
@@ -369,20 +372,19 @@
                       <Component id="jTextField3" min="-2" pref="104" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jButton4" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jButton5" max="32767" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jButton2" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jButton2" pref="165" max="32767" attributes="0"/>
+                          <Component id="jButton4" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jButton5" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
                               <Component id="jButton3" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jButton6" min="-2" pref="112" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="472" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="472" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -520,5 +522,44 @@
         </Container>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JButton" name="EmployeeAddBtn">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&#xc9c1;&#xc6d0; &#xcd94;&#xac00;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="EmployeeAddBtnActionPerformed"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+          <AbsoluteConstraints x="730" y="360" width="90" height="-1"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JButton" name="EmployeeEditBtn">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&#xc9c1;&#xc6d0; &#xc218;&#xc815;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="EmployeeEditBtnActionPerformed"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+          <AbsoluteConstraints x="930" y="360" width="90" height="-1"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JButton" name="EmployeeDelBtn">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="&#xc9c1;&#xc6d0; &#xc0ad;&#xc81c;"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="EmployeeDelBtnActionPerformed"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+          <AbsoluteConstraints x="830" y="360" width="90" height="-1"/>
+        </Constraint>
+      </Constraints>
+    </Component>
   </SubComponents>
 </Form>

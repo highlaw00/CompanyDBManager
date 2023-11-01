@@ -60,8 +60,16 @@ public class Modal {
         
         mainFrame.setGlassPane(glassPane);
         glassPane.setVisible(true);
+        adjustComboBoxPopups();
     }
-    
+    private void adjustComboBoxPopups() {  // 모달패널 뒤에 콤보박스가 뜨는 현상 제거 
+    for (java.awt.Component comp : modalPanel.getComponents()) {
+        if (comp instanceof JComboBox) {
+            JComboBox comboBox = (JComboBox) comp;
+            comboBox.setLightWeightPopupEnabled(false);
+        }
+    }
+}
     private void setupGlassPane() {
         glassPane.setLayout(null);
         glassPane.add(modalPanel);

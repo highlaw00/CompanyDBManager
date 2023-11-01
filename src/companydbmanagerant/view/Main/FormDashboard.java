@@ -60,7 +60,6 @@ public class FormDashboard extends javax.swing.JPanel {
 
     private void setDrawCellEdited() {
 
-
         LayerUI<JScrollPane> layerUI = new LayerUI<JScrollPane>() {
             @Override
             public void paint(Graphics g, JComponent c) {
@@ -75,7 +74,6 @@ public class FormDashboard extends javax.swing.JPanel {
                     // 모델이 EmployeeTableModel이 아닌 경우 함수를 종료
                     return;
                 }
-                
                 EmployeeTableModel model = (EmployeeTableModel) currentModel;
                 Graphics2D g2d = (Graphics2D) g;
                 Point viewPosition = jScrollPane1.getViewport().getViewPosition(); // get scroll offset
@@ -83,7 +81,7 @@ public class FormDashboard extends javax.swing.JPanel {
                 int yOffset = 0; // Adjust y-coordinate as you need
                 for (int row = 0; row < EmployeeTable.getRowCount(); row++) {
                     for (int column = 0; column < EmployeeTable.getColumnCount(); column++) {
-                        
+
                         Object cellValue = EmployeeTable.getValueAt(row, column);
                         if (model.isEdited(row, column)) { //cellValue != null && 
                             Rectangle cellRect = EmployeeTable.getCellRect(row, column, false);
@@ -231,6 +229,21 @@ public class FormDashboard extends javax.swing.JPanel {
         }
     }
 
+    public void addEmployeeAddBtnListener(ActionListener listener) {
+        EmployeeAddBtn.addActionListener(listener);
+
+    }
+
+    public void addEmployeeEditBtnListener(ActionListener listener) {
+        EmployeeEditBtn.addActionListener(listener);
+
+    }
+
+    public void addEmployeeDelBtnListener(ActionListener listener) {
+        EmployeeDelBtn.addActionListener(listener);
+
+    }
+
     public void addjButton1Listener(ActionListener listener) {
         jButton1.addActionListener(listener);
 
@@ -302,6 +315,9 @@ public class FormDashboard extends javax.swing.JPanel {
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
+        EmployeeAddBtn = new javax.swing.JButton();
+        EmployeeEditBtn = new javax.swing.JButton();
+        EmployeeDelBtn = new javax.swing.JButton();
 
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -574,17 +590,16 @@ public class FormDashboard extends javax.swing.JPanel {
                 .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
+                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(SearchConditionPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(SearchConditionPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(472, Short.MAX_VALUE))
+                .addGap(472, 472, 472))
         );
         SearchConditionPanel1Layout.setVerticalGroup(
             SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -622,7 +637,32 @@ public class FormDashboard extends javax.swing.JPanel {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 361, 925, -1));
+        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 410, 925, -1));
+        jPanel1.getAccessibleContext().setAccessibleName("");
+
+        EmployeeAddBtn.setText("직원 추가");
+        EmployeeAddBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EmployeeAddBtnActionPerformed(evt);
+            }
+        });
+        add(EmployeeAddBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 360, 90, -1));
+
+        EmployeeEditBtn.setText("직원 수정");
+        EmployeeEditBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EmployeeEditBtnActionPerformed(evt);
+            }
+        });
+        add(EmployeeEditBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 360, 90, -1));
+
+        EmployeeDelBtn.setText("직원 삭제");
+        EmployeeDelBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EmployeeDelBtnActionPerformed(evt);
+            }
+        });
+        add(EmployeeDelBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 360, 90, -1));
     }// </editor-fold>//GEN-END:initComponents
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
@@ -690,6 +730,18 @@ public class FormDashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton6ActionPerformed
 
+    private void EmployeeAddBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmployeeAddBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_EmployeeAddBtnActionPerformed
+
+    private void EmployeeEditBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmployeeEditBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_EmployeeEditBtnActionPerformed
+
+    private void EmployeeDelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmployeeDelBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_EmployeeDelBtnActionPerformed
+
     public JComboBox<String> getjComboBox1() {
         return jComboBox1;
     }
@@ -726,6 +778,9 @@ public class FormDashboard extends javax.swing.JPanel {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel DbMonitorPanel;
+    private javax.swing.JButton EmployeeAddBtn;
+    private javax.swing.JButton EmployeeDelBtn;
+    private javax.swing.JButton EmployeeEditBtn;
     private javax.swing.JTable EmployeeTable;
     private javax.swing.JPanel HeaderSelectPanel;
     private javax.swing.JPanel SearchConditionPanel;

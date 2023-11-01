@@ -33,6 +33,7 @@ import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
+import javax.swing.table.TableModel;
 import raven.toast.Notifications;
 
 /**
@@ -59,7 +60,7 @@ public class DataController {
         formDashboard.addCheckBoxListeners(createCheckBoxItemListener());
         formDashboard.addjComboBox1Listener(new addjComboBox1Listener());
         formDashboard.addjComboBox2Listener(new addjComboBox2Listener());
-
+        formDashboard.addEmployeeEditBtnListener(new addEmployeeEditBtnListener());
         //LoginForm 리스너 관리
         this.view.getLoginForm().addCmdLoginListener(new addCmdLoginListener());
 
@@ -118,7 +119,7 @@ public class DataController {
         }
     }
 
-    //DB불러오기 버튼 리스너 정의
+    //로그인 버튼 리스너 정의
     class addCmdLoginListener implements ActionListener {
 
         @Override
@@ -206,8 +207,8 @@ public class DataController {
                 public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                     Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
                     if (c instanceof JComponent) {
-                        ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(136,119,141)));
-                         c.setBackground(new Color(136,119,141));
+                        ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(136, 119, 141)));
+                        c.setBackground(new Color(136, 119, 141));
                     }
                     return c;
                 }
@@ -221,13 +222,54 @@ public class DataController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Modal modal = new Modal(view, new EmployeeEditPanel(), "exitBtn");
         }
     }
+
+    class addEmployeeAddBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+        }
+    }
+
+    class addEmployeeEditBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JTable EmployeeTable = view.getMainForm().getFormDashboard().getEmployeeTable();
+
+            TableModel currentModel = EmployeeTable.getModel();
+            if (!(currentModel instanceof EmployeeTableModel)) {
+                // 모델이 EmployeeTableModel이 아닌 경우 함수를 종료
+                return;
+            }
+            EmployeeTableModel tablemodel = (EmployeeTableModel) currentModel;
+
+            int selectedRow = EmployeeTable.getSelectedRow();
+            Employee selectedEmployee = tablemodel.getSelectedEmployee(selectedRow);
+            if (selectedEmployee != null) {
+                model.loadDepartmentsData();
+                List<Department> departments = model.getDepartments();
+
+                String query = SQLQueryBuilder.createFindNotSubordinatesQuery(selectedEmployee.getSsn());
+                List<String> notSubordinates = model.findNotSubordinates(query);
+                Modal modal = new Modal(view, new EmployeeEditPanel(selectedEmployee, departments,notSubordinates), "exitBtn");
+            }
+        }
+    }
+
+    class addEmployeeDelBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+        }
+    }
+
 //-------------------------------------------------------
 //-- FormDashboard의 콤보박스 상호작용 로직 --------------
 //-------------------------------------------------------
-
     public void handleComboBoxSelectionChanged(String selectedItem) {
         FormDashboard formdashboard = view.getMainForm().getFormDashboard();
         updateComboBoxBasedOnSelection(formdashboard.getjComboBox2(), formdashboard.getjComboBox3(), selectedItem);

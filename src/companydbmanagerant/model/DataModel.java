@@ -96,7 +96,11 @@ public class DataModel {
     //======================================================================
     //EMPLOYEE==============================================================
     //======================================================================   
-
+    //부하직원 또는 부하직원의부하직원의.. 가 아닌 직원의 SSN 찾기
+    public List<String> findNotSubordinates(String query){
+        return EmployeeDAO.findNotSubordinates(query);
+    }
+    
     // Employee 데이터를 로드하는 메서드
     public void loadEmployeesData() {
         this.employees = EmployeeDAO.loadData();  // 데이터베이스에서 직원 정보 로드

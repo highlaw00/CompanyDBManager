@@ -215,7 +215,7 @@ public class EmployeeTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true; // columnIndex == 0첫 번째 열의 체크 박스만 수정 가능합니다.
+        return false; // columnIndex == 0첫 번째 열의 체크 박스만 수정 가능합니다.
     }
 
     public void markEdited(int row, int column) {
@@ -234,4 +234,10 @@ public class EmployeeTableModel extends AbstractTableModel {
         return deletedCells.contains(new Point(row, column));
     }
 
+    public Employee getSelectedEmployee(int selectedRow) {
+    if (selectedRow >= 0 && selectedRow < employees.size()) {
+        return employees.get(selectedRow);
+    }
+    return null;  // 선택된 행이 없거나 범위를 벗어난 경우 null을 반환합니다.
+}
 }
