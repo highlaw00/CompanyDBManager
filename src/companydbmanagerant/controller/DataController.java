@@ -7,13 +7,17 @@ package companydbmanagerant.controller;
 import companydbmanagerant.model.DataModel;
 import companydbmanagerant.model.Department.Department;
 import companydbmanagerant.model.Employee.Employee;
-import companydbmanagerant.model.Employee.EmployeeTableModel;
+import companydbmanagerant.view.Main.TableModel.EmployeeTableModel;
 import companydbmanagerant.view.DataViewUtil;
 import companydbmanagerant.view.DataView;
 import companydbmanagerant.view.Login.LoginForm;
+import companydbmanagerant.view.Main.EmployeeAddPanel;
 import companydbmanagerant.view.Main.EmployeeEditPanel;
 import companydbmanagerant.view.Main.FormDashboard;
+import companydbmanagerant.view.Main.TableModel.CustomCellRenderer;
 import companydbmanagerant.view.Modal.Modal;
+import java.awt.Color;
+import java.awt.Component;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,11 +26,15 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
+import javax.swing.table.TableModel;
 import raven.toast.Notifications;
 
 /**
@@ -53,6 +61,8 @@ public class DataController {
         formDashboard.addCheckBoxListeners(createCheckBoxItemListener());
         formDashboard.addjComboBox1Listener(new addjComboBox1Listener());
         formDashboard.addjComboBox2Listener(new addjComboBox2Listener());
+        formDashboard.addEmployeeEditBtnListener(new addEmployeeEditBtnListener());
+        formDashboard.addEmployeeAddBtnListener(new addEmployeeAddBtnListener());
 
         //LoginForm 리스너 관리
         this.view.getLoginForm().addCmdLoginListener(new addCmdLoginListener());
@@ -64,7 +74,6 @@ public class DataController {
 //-------------------------------------------------------
 //--리스너 정의-------------------------------------------
 //-------------------------------------------------------
-    
     public ItemListener createCheckBoxItemListener() {
         return new ItemListener() {
             @Override
@@ -113,7 +122,7 @@ public class DataController {
         }
     }
 
-    //DB불러오기 버튼 리스너 정의
+    //로그인 버튼 리스너 정의
     class addCmdLoginListener implements ActionListener {
 
         @Override
@@ -122,17 +131,17 @@ public class DataController {
             String id = loginForm.getTxtUser().getText();
             char[] pass = loginForm.getTxtPass().getPassword();
             String url = loginForm.getTxtURL().getText();
-             String dbname = loginForm.getTxtDB().getText();
+            String dbname = loginForm.getTxtDB().getText();
             // 로그인시도시 JDBC_URL이 틀리면 창랙이 너무 심해서 백그라운드 수행으로 바꾸었음
             // 다른 트랙젝션은 굳이 백그라운드에서 실행 할 필요 없음
-            
+
             // SwingWorker를 사용하여 데이터베이스 로그인 시도를 백그라운드에서 수행
             SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                 @Override
                 protected Boolean doInBackground() {
                     // 백그라운드에서 데이터베이스 로그인 시도
                     // 'model.tryLogin(id, pass, url)'는 실제 로그인 메서드 호출을 나타냅니다.
-                    return model.tryLogin(id, pass, dbname,url);
+                    return model.tryLogin(id, pass, dbname, url);
                 }
 
                 @Override
@@ -195,19 +204,79 @@ public class DataController {
             employeeTable.setModel(employeeTableModel);
             List<String> columnsToDisplay = view.getMainForm().getFormDashboard().getSelectedCheckBoxLabels();
             employeeTableModel.setActiveColumns(columnsToDisplay);
-
+//            employeeTable.setDefaultRenderer(Object.class, new CustomCellRenderer(employeeTableModel)); //
+            employeeTable.setDefaultEditor(Object.class, new DefaultCellEditor(new JTextField()) {
+                @Override
+                public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                    Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
+                    if (c instanceof JComponent) {
+                        ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(136, 119, 141)));
+                        c.setBackground(new Color(136, 119, 141));
+                    }
+                    return c;
+                }
+            });
             //검색완료 알림 
             Notifications.getInstance().show(Notifications.Type.SUCCESS, "DB 검색이 완료되었습니다.");
         }
     }
-    
-      class addjButton2Listener implements ActionListener {
+
+    class addjButton2Listener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-           Modal modal = new Modal(view,new EmployeeEditPanel(),"exitBtn");
         }
     }
+
+    class addEmployeeAddBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+                model.loadDepartmentsData();
+                List<Department> departments = model.getDepartments();
+
+                String query = SQLQueryBuilder.createFindSSNsQuery();
+                List<String> SSNs = model.findNotSubordinates(query);
+                Modal modal = new Modal(view, new EmployeeAddPanel(departments, SSNs), "exitBtn");
+            
+        }
+    }
+
+    class addEmployeeEditBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JTable EmployeeTable = view.getMainForm().getFormDashboard().getEmployeeTable();
+
+            TableModel currentModel = EmployeeTable.getModel();
+            if (!(currentModel instanceof EmployeeTableModel)) {
+                // 모델이 EmployeeTableModel이 아닌 경우 함수를 종료
+                return;
+            }
+            EmployeeTableModel tablemodel = (EmployeeTableModel) currentModel;
+
+            int selectedRow = EmployeeTable.getSelectedRow();
+            Employee selectedEmployee = tablemodel.getSelectedEmployee(selectedRow);
+            if (selectedEmployee != null) {
+                model.loadDepartmentsData();
+                List<Department> departments = model.getDepartments();
+
+                String query = SQLQueryBuilder.createFindNotSubordinatesQuery(selectedEmployee.getSsn());
+                List<String> notSubordinates = model.findNotSubordinates(query);
+                Modal modal = new Modal(view, new EmployeeEditPanel(selectedEmployee, departments, notSubordinates), "exitBtn");
+            }
+        }
+    }
+
+    class addEmployeeDelBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+        }
+    }
+
 //-------------------------------------------------------
 //-- FormDashboard의 콤보박스 상호작용 로직 --------------
 //-------------------------------------------------------

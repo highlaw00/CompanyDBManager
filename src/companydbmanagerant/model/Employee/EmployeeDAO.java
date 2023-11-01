@@ -20,6 +20,51 @@ import java.util.List;
  */
 public class EmployeeDAO {
 
+    
+     public static List<String> findNotSubordinates(String query) {
+        List<String> notSubordinates = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옵니다.
+            System.out.println("DB CONNECTED");
+            // 쿼리 준비. 여기서는 모든 직원을 선택합니다.
+            String sql = query;
+            pstmt = conn.prepareStatement(sql);
+
+            // 쿼리 실행 및 결과 처리
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+ 
+                String ssn = rs.getString("Ssn");
+                // 리스트에 Employee 객체 추가
+                notSubordinates.add(ssn);
+            }
+        } catch (SQLException e) {
+            // 예외 처리
+
+        } finally {
+            // 사용한 자원 반환
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+
+        return notSubordinates;
+    }
+    
     public static List<Employee> loadDataFittered(String condition) {
         List<Employee> employees = new ArrayList<>();
         Connection conn = null;

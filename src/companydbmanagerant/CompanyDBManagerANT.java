@@ -6,7 +6,6 @@ package companydbmanagerant;
 import companydbmanagerant.controller.DataController;
 import companydbmanagerant.model.DataModel;
 import companydbmanagerant.view.DataView;
-import companydbmanagerant.view.EmpolyEditFrame;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.SwingUtilities;
