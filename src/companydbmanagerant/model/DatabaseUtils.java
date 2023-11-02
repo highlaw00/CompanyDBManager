@@ -6,6 +6,7 @@ package companydbmanagerant.model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import raven.toast.Notifications;
 
@@ -14,7 +15,7 @@ import raven.toast.Notifications;
  * @author PHC
  */
 public class DatabaseUtils {
-    private static String URL = "root";
+    private static String URL = "localhost:3306";
     private static String USER = "root";
     private static String PASS = "qwer123";
     private static String DBNAME = "companydb";
@@ -22,7 +23,7 @@ public class DatabaseUtils {
         Connection conn = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+ DBNAME +"?zeroDateTimeBehavior=CONVERT_TO_NULL", USER, PASS);
+            conn = DriverManager.getConnection("jdbc:mysql://"+ URL + "/"+ DBNAME +"?zeroDateTimeBehavior=CONVERT_TO_NULL", USER, PASS);
         } catch (Exception e) {
              Notifications.getInstance().show(Notifications.Type.ERROR,e.getMessage());
             //JOptionPane.showMessageDialog(null, e);
@@ -48,6 +49,14 @@ public class DatabaseUtils {
             System.err.println(e);
 
             return false;
+        }  finally {
+            // 사용한 자원 반환
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+            }
         }
         
         return true;  

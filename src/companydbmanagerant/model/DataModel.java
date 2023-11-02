@@ -82,9 +82,9 @@ public class DataModel {
 
     public DataModel() {
         // 모델 객체가 생성될 때 데이터를 로드합니다.
-        loadEmployeesData();
+        //loadEmployeesData();
         //테스트코드
-        //TestCode();
+        TestCode();
   
     }
     // DB LOGIN

@@ -20,8 +20,7 @@ import java.util.List;
  */
 public class EmployeeDAO {
 
-    
-     public static List<String> findNotSubordinates(String query) {
+    public static List<String> findNotSubordinates(String query) {
         List<String> notSubordinates = new ArrayList<>();
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -29,7 +28,7 @@ public class EmployeeDAO {
 
         try {
             conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옵니다.
-            System.out.println("DB CONNECTED");
+            System.out.println("DB CONNECTED E1");
             // 쿼리 준비. 여기서는 모든 직원을 선택합니다.
             String sql = query;
             pstmt = conn.prepareStatement(sql);
@@ -38,13 +37,13 @@ public class EmployeeDAO {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
- 
+
                 String ssn = rs.getString("Ssn");
                 // 리스트에 Employee 객체 추가
                 notSubordinates.add(ssn);
             }
         } catch (SQLException e) {
-            // 예외 처리
+            System.err.print(e);
 
         } finally {
             // 사용한 자원 반환
@@ -64,7 +63,7 @@ public class EmployeeDAO {
 
         return notSubordinates;
     }
-    
+
     public static List<Employee> loadDataFittered(String condition) {
         List<Employee> employees = new ArrayList<>();
         Connection conn = null;
@@ -73,7 +72,7 @@ public class EmployeeDAO {
 
         try {
             conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옵니다.
-            System.out.println("DB CONNECTED");
+            System.out.println("DB CONNECTED E2");
             // 쿼리 준비. 여기서는 모든 직원을 선택합니다.
             String sql = "SELECT * FROM EMPLOYEE JOIN DEPARTMENT on Dnumber=Dno " + condition;
             pstmt = conn.prepareStatement(sql);
@@ -103,7 +102,7 @@ public class EmployeeDAO {
             }
         } catch (SQLException e) {
             // 예외 처리
-
+            System.err.print(e);
         } finally {
             // 사용한 자원 반환
             try {
@@ -131,7 +130,7 @@ public class EmployeeDAO {
 
         try {
             conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옵니다.
-            System.out.println("DB CONNECTED");
+            System.out.println("DB CONNECTED E3");
             // 쿼리 준비. 여기서는 모든 직원을 선택합니다.
             String sql = "SELECT * FROM EMPLOYEE JOIN DEPARTMENT on Dnumber=Dno ";
             pstmt = conn.prepareStatement(sql);
@@ -160,8 +159,10 @@ public class EmployeeDAO {
                 employees.add(employee);
             }
         } catch (SQLException e) {
-            // 예외 처리
+            System.err.print(e);
 
+        } catch (Exception e) {
+            System.err.println("General Exception: " + e.getMessage());
         } finally {
             // 사용한 자원 반환
             try {

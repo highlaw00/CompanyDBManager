@@ -26,7 +26,7 @@ public class DepartmentDAO {
 
         try {
             conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옵니다.
-            System.out.println("DB CONNECTED");
+            System.out.println("DB CONNECTED 0");
             // 쿼리 준비. 여기서는 모든 직원을 선택합니다.
             String sql = "SELECT * FROM DEPARTMENT " + condition;
             pstmt = conn.prepareStatement(sql);
@@ -75,7 +75,7 @@ public class DepartmentDAO {
 
         try {
             conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옵니다.
-            System.out.println("DB CONNECTED");
+            System.out.println("DB CONNECTED 1");
             // 쿼리 준비. 여기서는 모든 직원을 선택합니다.
             String sql = "SELECT * FROM DEPARTMENT";
             pstmt = conn.prepareStatement(sql);
