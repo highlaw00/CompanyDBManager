@@ -82,7 +82,7 @@ public class DataModel {
 
     public DataModel() {
         // 모델 객체가 생성될 때 데이터를 로드합니다.
-        loadEmployeesData();
+        //loadEmployeesData();
         //테스트코드
         //TestCode();
   
@@ -123,6 +123,10 @@ public class DataModel {
     //======================================================================
     //DEPARTMENT==============================================================
     //======================================================================   
+        public List<String> loadDepartmentsList() {
+        return DepartmentDAO.loadDepartmentsList();  // 데이터베이스에서 부서 정보 로드
+    }
+    
     public void loadDepartmentsData() {
         this.departments = DepartmentDAO.loadData();  // 데이터베이스에서 부서 정보 로드
     }

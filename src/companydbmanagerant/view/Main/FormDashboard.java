@@ -4,6 +4,7 @@
  */
 package companydbmanagerant.view.Main;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import companydbmanagerant.view.Main.TableModel.EmployeeTableModel;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -23,6 +24,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.GroupLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -53,6 +55,14 @@ public class FormDashboard extends javax.swing.JPanel {
         //열목록 체크박스 초기화및 설정 
         initializeCheckBoxList();
         setCheckBoxTexts();
+        filterBtn.putClientProperty(FlatClientProperties.STYLE, ""
+                + "arc:25;"
+                + "background : rgb(242, 242, 242);"
+                + "foreground : rgb(20, 20, 20);"
+                + "borderWidth : 1;"
+                + "borderColor : rgb(242, 242, 242);"
+                + "focusedBackground : rgb(230, 230, 230);"
+                + "focusedBorderColor : rgb(220, 220, 220)");
         HeaderSelectPanel.revalidate();
         HeaderSelectPanel.repaint();
         setDrawCellEdited();
@@ -254,23 +264,16 @@ public class FormDashboard extends javax.swing.JPanel {
 
     }
 
-    public void addjComboBox1Listener(ActionListener listener) {
-        jComboBox1.addActionListener(listener);
-    }
-
-    public void addjComboBox2Listener(ActionListener listener) {
-        jComboBox2.addActionListener(listener);
-    }
-
-    public void addjComboBox3Listener(ActionListener listener) {
-        jComboBox3.addActionListener(listener);
-    }
-
     public void addCheckBoxListeners(ItemListener checkBoxItemListener) {
         ItemListener itemListener = checkBoxItemListener;
         for (JCheckBox checkBox : checkBoxList) {
             checkBox.addItemListener(itemListener);
         }
+    }
+
+    public void addFilterBtnListener(ActionListener listener) {
+        filterBtn.addActionListener(listener);
+
     }
 
     /**
@@ -287,11 +290,6 @@ public class FormDashboard extends javax.swing.JPanel {
         EmployeeTable = new javax.swing.JTable();
         SearchConditionPanel = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jComboBox2 = new javax.swing.JComboBox<>();
-        jTextField1 = new javax.swing.JTextField();
-        jComboBox3 = new javax.swing.JComboBox<>();
         HeaderSelectPanel = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
         jCheckBox2 = new javax.swing.JCheckBox();
@@ -303,6 +301,7 @@ public class FormDashboard extends javax.swing.JPanel {
         jCheckBox8 = new javax.swing.JCheckBox();
         jCheckBox9 = new javax.swing.JCheckBox();
         jCheckBox10 = new javax.swing.JCheckBox();
+        filterBtn = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         SearchConditionPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
@@ -363,35 +362,6 @@ public class FormDashboard extends javax.swing.JPanel {
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText("검색범위");
-
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "전체", "First Name", "Minit", "Last Name", "SSN", "Birth Date", "Address", "Sex", "Salary", "Super SSN", "Dname" }));
-        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox1ActionPerformed(evt);
-            }
-        });
-
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "=" }));
-        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox2ActionPerformed(evt);
-            }
-        });
-
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
-            }
-        });
-
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "=" }));
-        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox3ActionPerformed(evt);
             }
         });
 
@@ -461,28 +431,22 @@ public class FormDashboard extends javax.swing.JPanel {
         jCheckBox10.setDoubleBuffered(true);
         HeaderSelectPanel.add(jCheckBox10);
 
+        filterBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/companydbmanagerant/icons/filter.png"))); // NOI18N
+        filterBtn.setText("Filters");
+
         javax.swing.GroupLayout SearchConditionPanelLayout = new javax.swing.GroupLayout(SearchConditionPanel);
         SearchConditionPanel.setLayout(SearchConditionPanelLayout);
         SearchConditionPanelLayout.setHorizontalGroup(
             SearchConditionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(SearchConditionPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(SearchConditionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(SearchConditionPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(HeaderSelectPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 905, Short.MAX_VALUE))
+                        .addComponent(HeaderSelectPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 905, Short.MAX_VALUE)
+                        .addGap(31, 31, 31))
                     .addGroup(SearchConditionPanelLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(31, 31, 31)
+                        .addComponent(filterBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jButton1)
                 .addContainerGap())
         );
@@ -491,12 +455,8 @@ public class FormDashboard extends javax.swing.JPanel {
             .addGroup(SearchConditionPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(SearchConditionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addComponent(jButton1)
+                    .addComponent(filterBtn))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(HeaderSelectPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -665,22 +625,6 @@ public class FormDashboard extends javax.swing.JPanel {
         add(EmployeeDelBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 360, 90, -1));
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox1ActionPerformed
-
-    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox2ActionPerformed
-
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
-    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox3ActionPerformed
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -742,18 +686,6 @@ public class FormDashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_EmployeeDelBtnActionPerformed
 
-    public JComboBox<String> getjComboBox1() {
-        return jComboBox1;
-    }
-
-    public JComboBox<String> getjComboBox2() {
-        return jComboBox2;
-    }
-
-    public JTextField getjTextField1() {
-        return jTextField1;
-    }
-
     public JTable getEmployeeTable() {
         return EmployeeTable;
     }
@@ -762,8 +694,9 @@ public class FormDashboard extends javax.swing.JPanel {
         return checkBoxList;
     }
 
-    public JComboBox<String> getjComboBox3() {
-        return jComboBox3;
+
+    public JButton getFilterBtn() {
+        return filterBtn;
     }
 
     public List<String> getSelectedCheckBoxLabels() {
@@ -785,6 +718,7 @@ public class FormDashboard extends javax.swing.JPanel {
     private javax.swing.JPanel HeaderSelectPanel;
     private javax.swing.JPanel SearchConditionPanel;
     private javax.swing.JPanel SearchConditionPanel1;
+    private javax.swing.JButton filterBtn;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -801,17 +735,12 @@ public class FormDashboard extends javax.swing.JPanel {
     private javax.swing.JCheckBox jCheckBox7;
     private javax.swing.JCheckBox jCheckBox8;
     private javax.swing.JCheckBox jCheckBox9;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
-    private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JComboBox<String> jComboBox4;
     private javax.swing.JComboBox<String> jComboBox5;
     private javax.swing.JComboBox<String> jComboBox6;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
 }
