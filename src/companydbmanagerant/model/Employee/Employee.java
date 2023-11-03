@@ -44,6 +44,22 @@ public class Employee {
         this.dname = Dname;
     }
 
+    public Employee(String fname, String minit, String lname, String ssn, Date bdate, String address, String sex, double salary, String superSsn, int dno, String Dname) {
+        this.fname = fname;
+        this.minit = minit;
+        this.lname = lname;
+        this.ssn = ssn;
+        this.bdate = bdate;
+        this.address = address;
+        this.sex = sex;
+        this.salary = salary;
+        this.superSsn = superSsn;
+        this.dno = dno;
+        this.created = null;
+        this.modified = null;
+        this.dname = Dname;
+    }
+
     // isSelected 필드에 대한 getter와 setter도 추가해주세요.
     public boolean isSelected() {
         return isSelected;

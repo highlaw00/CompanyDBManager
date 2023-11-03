@@ -4,6 +4,7 @@
  */
 package companydbmanagerant.view.Main;
 
+import companydbmanagerant.model.Employee.EmployeeDAO;
 import companydbmanagerant.view.Main.*;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.ui.FlatUIUtils;
@@ -12,6 +13,8 @@ import companydbmanagerant.model.Employee.Employee;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 import raven.toast.Notifications;
@@ -471,7 +474,31 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // DB에 저장될 임직원 데이터를 Parsing하고 객체를 선언해 DAO에 전달합니다.
+        Department selectedDepartment = this.departments.get(comboDname.getSelectedIndex());
+        String selectedSuperEmployee = this.Employees.get(comboSuperSSN.getSelectedIndex());
 
+        double salary;
+        try {
+            salary = Double.parseDouble(txtSalary.getText());
+        } catch (NumberFormatException e){
+            // 임금이 주어지지 않으면 -1로 설정하여 DAO에서 임금을 Null로 지정합니다.
+            salary = -1;
+        }
+        // 부서 번호는 Null이 될 수 없습니다.
+        int dno = Integer.parseInt(selectedDepartment.getDnumber());
+
+        // String 자료형인 생년월일을 Date로 변경
+        String bdate = txtBirth.getText();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date;
+        try {
+            date = dateFormat.parse(bdate);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        Employee employee = new Employee(txtFirstName.getText(), txtMinit.getText(), txtLastName.getText(), txtSSN.getText(), date, txtAddress.getText(), comboSEX.getSelectedItem().toString(), salary, selectedSuperEmployee, dno, selectedDepartment.getDname());
+        EmployeeDAO.insertEmployee(employee);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void txtFirstNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFirstNameActionPerformed
