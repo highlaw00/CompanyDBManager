@@ -31,18 +31,19 @@ public class DatabaseUtils {
         return conn;  // 이제 연결 객체를 반환합니다.
     }
     
-    public static boolean try_login(String user,char[] pass,String dbname,String url) {
+    public static boolean try_login(LoginFormDataDTO logindata) {
+
+        
         Connection conn = null;
-        String temp = String.valueOf(pass);
+        String temp = String.valueOf(logindata.getPassword());
         try {
-            
-            
+
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://"+ url + "/"+ dbname +"?zeroDateTimeBehavior=CONVERT_TO_NULL", user, temp);
-            USER = user;
+            conn = DriverManager.getConnection("jdbc:mysql://"+ logindata.getUrl() + "/"+ logindata.getDbName() +"?zeroDateTimeBehavior=CONVERT_TO_NULL", logindata.getUserId(), temp);
+            USER = logindata.getUserId();
             PASS = temp;
-            DBNAME = dbname;
-            URL = url;
+            DBNAME = logindata.getDbName();
+            URL = logindata.getUrl();
         } catch (Exception e) {
             //JOptionPane.showMessageDialog(null, e);
             Notifications.getInstance().show(Notifications.Type.ERROR,e.getMessage());

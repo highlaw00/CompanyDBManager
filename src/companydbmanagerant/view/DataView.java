@@ -9,15 +9,34 @@ import companydbmanagerant.view.Login.LoginForm;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import companydbmanagerant.view.Main.QueryBuilderForm.Querybuilderform;
+import companydbmanagerant.controller.DataController;
+import companydbmanagerant.model.Department.Department;
+import companydbmanagerant.model.Employee.Employee;
+import companydbmanagerant.model.LoginFormDataDTO;
+import companydbmanagerant.model.SQLQueryBuilder;
+import companydbmanagerant.model.TableModel.EmployeeTableModel;
+import companydbmanagerant.view.Main.EmployeeAddPanel;
+import companydbmanagerant.view.Main.EmployeeEditPanel;
+import companydbmanagerant.view.Main.FormDashboard;
+import companydbmanagerant.view.Main.QueryBuilderForm.QueryBuilderForm;
+
+import companydbmanagerant.view.Modal.Modal;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -32,18 +51,24 @@ public class DataView extends javax.swing.JFrame {
 
     private final MainForm mainForm;
     private final LoginForm loginForm;
-    private Querybuilderform querybuilderform;
+    private QueryBuilderForm queryBuilderForm;
+    private DataController controller;
 
     /**
      * Creates new form MainFrame
      */
     public DataView() {
+
         initComponents();
-        querybuilderform = null;
+        queryBuilderForm = null;
         mainForm = new MainForm();
         loginForm = new LoginForm();
 
         init();
+    }
+
+    public void setController(DataController controller) {
+        this.controller = controller;
     }
 
     private void init() {
@@ -53,14 +78,166 @@ public class DataView extends javax.swing.JFrame {
         FlatLaf.updateUI();
     }
 
-    public Querybuilderform getQuerybuilderform() {
-        return querybuilderform;
+    // ==========================================================
+    // 로그인 버튼 관련(VIEW 단)
+    // ==========================================================
+    public LoginFormDataDTO getLoginFormTextFieldsText() {
+        String id = loginForm.getTxtUser().getText();
+        char[] pass = loginForm.getTxtPass().getPassword();
+        String url = loginForm.getTxtURL().getText();
+        String dbname = loginForm.getTxtDB().getText();
+
+        return new LoginFormDataDTO(id, pass, url, dbname);
     }
 
-    public void setQuerybuilderform(Querybuilderform querybuilderform) {
-        this.querybuilderform = querybuilderform;
+    // ==========================================================
+    // DB 불러오기 버튼 관련(VIEW 단)
+    // ==========================================================
+    public void addRetrieveDBButtonListener(ActionListener listener) {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.getRetrieveDBBtn().addActionListener(listener);
     }
 
+    public String getQueryCondition() {
+        if (queryBuilderForm != null) {
+            return queryBuilderForm.getRootNode().toSQL();
+        }
+        return "";
+    }
+
+    public void updateEmployeeTable(EmployeeTableModel tableModel) {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.getEmployeeTable().setModel(tableModel);
+        tableModel.setActiveColumns(formDashboard.getSelectedCheckBoxLabels());
+        // 컬럼 설정과 에디터 설정 로직
+        setTableColumnsAndEditors();
+        // 알림 로직
+        notifySuccess();
+    }
+
+    private List<String> getSelectedCheckBoxLabels() {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        return formDashboard.getSelectedCheckBoxLabels();
+    }
+
+    private void setTableColumnsAndEditors() {
+        // 컬럼 및 에디터 설정
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+
+        formDashboard.getEmployeeTable().setDefaultEditor(Object.class, new DefaultCellEditor(new JTextField()) {
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
+                if (c instanceof JComponent) {
+                    ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(136, 119, 141)));
+                    c.setBackground(new Color(136, 119, 141));
+                }
+                return c;
+            }
+        });
+    }
+
+    // ==========================================================
+    // 노티 관련 
+    // ==========================================================
+
+    
+    
+    private void notifySuccess() {
+        Notifications.getInstance().show(Notifications.Type.SUCCESS, "DB 검색이 완료되었습니다.");
+    }
+
+    // ==========================================================
+    // EmployeeADD 버튼 관련 
+    // ==========================================================
+    public void addAddButtonListener(ActionListener listener) {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.getEmployeeAddBtn().addActionListener(listener);
+    }
+
+    public void showAddDialog(List<Department> departments, List<String> SSNs) {
+        Modal modal = new Modal(this, new EmployeeAddPanel(departments, SSNs), "exitBtn", true, null);
+    }
+
+    // ==========================================================
+    // EmployeeDel 버튼 관련 
+    // ==========================================================
+    public void addDelButtonListener(ActionListener listener) {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.getEmployeeDelBtn().addActionListener(listener);
+    }
+
+    public void showDelDialog(Employee employee) {
+//       .. Delete에 대한 모달폼을 띄워야함 .. 
+//   ex Modal modal = new Modal(this, new EmployeeDelPanel(employee), "exitBtn", true, null);
+//      EmployeeDelPanel는 아직 정의 안되어 있고 
+    }
+
+    // ==========================================================
+    // EmployeeEdit 버튼 관련 
+    // ==========================================================
+    public int getSelectedRow() {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        return formDashboard.getEmployeeTable().getSelectedRow();
+    }
+
+    public void addEditButtonListener(ActionListener listener) {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.getEmployeeEditBtn().addActionListener(listener);
+    }
+
+    public void showEditDialog(Employee employee, List<Department> departments, List<String> notSubordinates) {
+        Modal modal = new Modal(this, new EmployeeEditPanel(employee, departments, notSubordinates), "exitBtn", true, null);
+    }
+
+    // ==========================================================
+    // Filter버튼 관련 
+    // ==========================================================
+    public void addAddFilterBtnListener(ActionListener listner) {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        JButton filterBtn = formDashboard.getFilterBtn();
+        filterBtn.addActionListener(listner);
+    }
+
+    public void displayQuerybuilderform() {
+        if (queryBuilderForm == null) {
+            return;
+        }
+        ActionListener closeBtnListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FormDashboard formDashboard = getMainForm().getFormDashboard();
+                JButton filterBtn = formDashboard.getFilterBtn();
+                int filtercnt = getQueryBuilderForm().getFiltercnt();
+                if (filtercnt == 0) {
+                    filterBtn.setText("Filters");
+                } else {
+                    filterBtn.setText("Filters (" + String.valueOf(filtercnt) + ")");
+
+                }
+
+            }
+        };
+
+        Modal modal = new Modal(this, queryBuilderForm, "exitBtn", false, closeBtnListener); //리스너 주입
+    }
+
+    // ==========================================================
+    // 쿼리 빌더 폼 관련 
+    // ==========================================================
+    public QueryBuilderForm getQueryBuilderForm() {
+        return queryBuilderForm;
+    }
+
+    public void initQueryBuilderForm(List<String> departments) {
+        if (queryBuilderForm == null) {
+            queryBuilderForm = new QueryBuilderForm(departments);
+        }
+    }
+
+    // ================================================
+    // ================================================
+    // ================================================
     public MainForm getMainForm() {
         return mainForm;
     }
@@ -72,7 +249,6 @@ public class DataView extends javax.swing.JFrame {
     public void showMainForm() {
         setContentPane(mainForm);
         FlatLaf.updateUI();
-
     }
 
     /**

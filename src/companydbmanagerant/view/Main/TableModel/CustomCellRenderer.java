@@ -4,6 +4,7 @@
  */
 package companydbmanagerant.view.Main.TableModel;
 
+import companydbmanagerant.model.TableModel.EmployeeTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;

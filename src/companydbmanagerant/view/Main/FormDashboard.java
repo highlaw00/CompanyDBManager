@@ -5,7 +5,7 @@
 package companydbmanagerant.view.Main;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import companydbmanagerant.view.Main.TableModel.EmployeeTableModel;
+import companydbmanagerant.model.TableModel.EmployeeTableModel;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -255,7 +255,7 @@ public class FormDashboard extends javax.swing.JPanel {
     }
 
     public void addjButton1Listener(ActionListener listener) {
-        jButton1.addActionListener(listener);
+        RetrieveDBBtn.addActionListener(listener);
 
     }
 
@@ -289,7 +289,7 @@ public class FormDashboard extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         EmployeeTable = new javax.swing.JTable();
         SearchConditionPanel = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        RetrieveDBBtn = new javax.swing.JButton();
         HeaderSelectPanel = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
         jCheckBox2 = new javax.swing.JCheckBox();
@@ -358,10 +358,10 @@ public class FormDashboard extends javax.swing.JPanel {
         SearchConditionPanel.setBackground(new java.awt.Color(255, 51, 51));
         SearchConditionPanel.setOpaque(false);
 
-        jButton1.setText("DB조회");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        RetrieveDBBtn.setText("DB조회");
+        RetrieveDBBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                RetrieveDBBtnActionPerformed(evt);
             }
         });
 
@@ -447,7 +447,7 @@ public class FormDashboard extends javax.swing.JPanel {
                     .addGroup(SearchConditionPanelLayout.createSequentialGroup()
                         .addComponent(filterBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addComponent(jButton1)
+                .addComponent(RetrieveDBBtn)
                 .addContainerGap())
         );
         SearchConditionPanelLayout.setVerticalGroup(
@@ -455,7 +455,7 @@ public class FormDashboard extends javax.swing.JPanel {
             .addGroup(SearchConditionPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(SearchConditionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                    .addComponent(RetrieveDBBtn)
                     .addComponent(filterBtn))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(HeaderSelectPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -625,9 +625,9 @@ public class FormDashboard extends javax.swing.JPanel {
         add(EmployeeDelBtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 360, 90, -1));
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void RetrieveDBBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RetrieveDBBtnActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_RetrieveDBBtnActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         // TODO add your handling code here:
@@ -686,6 +686,36 @@ public class FormDashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_EmployeeDelBtnActionPerformed
 
+    public JButton getEmployeeAddBtn() {
+        return EmployeeAddBtn;
+    }
+
+    public void setEmployeeAddBtn(JButton EmployeeAddBtn) {
+        this.EmployeeAddBtn = EmployeeAddBtn;
+    }
+
+    public JButton getEmployeeDelBtn() {
+        return EmployeeDelBtn;
+    }
+
+    public void setEmployeeDelBtn(JButton EmployeeDelBtn) {
+        this.EmployeeDelBtn = EmployeeDelBtn;
+    }
+
+    public JButton getEmployeeEditBtn() {
+        return EmployeeEditBtn;
+    }
+
+    public void setEmployeeEditBtn(JButton EmployeeEditBtn) {
+        this.EmployeeEditBtn = EmployeeEditBtn;
+    }
+
+    public JButton getRetrieveDBBtn() {
+        return RetrieveDBBtn;
+    }
+
+    
+    
     public JTable getEmployeeTable() {
         return EmployeeTable;
     }
@@ -716,10 +746,10 @@ public class FormDashboard extends javax.swing.JPanel {
     private javax.swing.JButton EmployeeEditBtn;
     private javax.swing.JTable EmployeeTable;
     private javax.swing.JPanel HeaderSelectPanel;
+    private javax.swing.JButton RetrieveDBBtn;
     private javax.swing.JPanel SearchConditionPanel;
     private javax.swing.JPanel SearchConditionPanel1;
     private javax.swing.JButton filterBtn;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
