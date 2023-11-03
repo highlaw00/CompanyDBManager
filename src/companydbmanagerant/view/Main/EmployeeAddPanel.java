@@ -498,7 +498,12 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
             throw new RuntimeException(e);
         }
         Employee employee = new Employee(txtFirstName.getText(), txtMinit.getText(), txtLastName.getText(), txtSSN.getText(), date, txtAddress.getText(), comboSEX.getSelectedItem().toString(), salary, selectedSuperEmployee, dno, selectedDepartment.getDname());
-        EmployeeDAO.insertEmployee(employee);
+        boolean isSuccessful = EmployeeDAO.insertEmployee(employee);
+        if (isSuccessful) {
+            Notifications.getInstance().show(Notifications.Type.SUCCESS, 2000, "DB에 새로운 직원이 삽입되었습니다.");
+        } else {
+            Notifications.getInstance().show(Notifications.Type.ERROR, 2000, "삽입이 실패되었습니다.");
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void txtFirstNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFirstNameActionPerformed

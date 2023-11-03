@@ -4,6 +4,8 @@
  */
 package companydbmanagerant.view.Main;
 
+import companydbmanagerant.model.Employee.Employee;
+import companydbmanagerant.model.Employee.EmployeeDAO;
 import companydbmanagerant.view.Main.TableModel.EmployeeTableModel;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -739,7 +741,20 @@ public class FormDashboard extends javax.swing.JPanel {
     }//GEN-LAST:event_EmployeeEditBtnActionPerformed
 
     private void EmployeeDelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmployeeDelBtnActionPerformed
-        // TODO add your handling code here:
+        JTable EmployeeTable = getEmployeeTable();
+        TableModel currModel = EmployeeTable.getModel();
+        if (!(currModel instanceof EmployeeTableModel)) {
+            return;
+        }
+
+        EmployeeTableModel tableModel = (EmployeeTableModel) currModel;
+        int selectedRow = EmployeeTable.getSelectedRow();
+        if (selectedRow == -1) {
+            Notifications.getInstance().show(Notifications.Type.ERROR, 2000, "삭제하려는 직원을 선택해주세요.");
+            return;
+        }
+        Employee selectedEmployee = tableModel.getSelectedEmployee(selectedRow);
+        EmployeeDAO.deleteEmployee(selectedEmployee);
     }//GEN-LAST:event_EmployeeDelBtnActionPerformed
 
     public JComboBox<String> getjComboBox1() {
