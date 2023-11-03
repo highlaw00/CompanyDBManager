@@ -14,6 +14,7 @@ import companydbmanagerant.model.DeptLocations.DeptLocations;
 import companydbmanagerant.model.DeptLocations.DeptLocationsDAO;
 import companydbmanagerant.model.Project.Project;
 import companydbmanagerant.model.Project.ProjectDAO;
+import companydbmanagerant.model.TableModel.EmployeeTableModel;
 import companydbmanagerant.model.WorksOn.WorksOn;
 import companydbmanagerant.model.WorksOn.WorksOnDAO;
 import java.util.List;
@@ -21,11 +22,11 @@ import java.util.List;
 /**
  *
  * @author PHC
- * 
+ *
  * DAO를 통합관리하는 클래스
  */
 public class DataModel {
-    
+
     // 데이터를 보관하는 리스트
     private List<Employee> employees;
     private List<Department> departments;
@@ -33,51 +34,52 @@ public class DataModel {
     private List<DeptLocations> deptlocationss;
     private List<Project> projects;
     private List<Dependent> dependents;
-    
 
-    
-    private void TestCode(){
-          // 테스트코드: EMPLOYEE
-    loadEmployeesData();
-    System.out.println("EMPLOYEE TEST");
-    for (Employee e : employees) {
-        System.out.println(e.toString());
-    }
+    // 테이블모델
+    EmployeeTableModel employeeTableModel;
 
-    // 테스트코드: DEPARTMENT
-    loadDepartmentsData();
-    System.out.println("\nDEPARTMENT TEST");
-    for (Department d : departments) {
-        System.out.println(d.toString());
-    }
+    private void TestCode() {
+        // 테스트코드: EMPLOYEE
+        loadEmployeesData();
+        System.out.println("EMPLOYEE TEST");
+        for (Employee e : employees) {
+            System.out.println(e.toString());
+        }
 
-    // 테스트코드: WORKS_ON
-    loadWorksOnData();
-    System.out.println("\nWORKS_ON TEST");
-    for (WorksOn w : worksons) {
-        System.out.println(w.toString());
-    }
+        // 테스트코드: DEPARTMENT
+        loadDepartmentsData();
+        System.out.println("\nDEPARTMENT TEST");
+        for (Department d : departments) {
+            System.out.println(d.toString());
+        }
 
-    // 테스트코드: DEPT_LOCATIONS
-    loadDeptLocationssOnData();
-    System.out.println("\nDEPT_LOCATIONS TEST");
-    for (DeptLocations dl : deptlocationss) {
-        System.out.println(dl.toString());
-    }
+        // 테스트코드: WORKS_ON
+        loadWorksOnData();
+        System.out.println("\nWORKS_ON TEST");
+        for (WorksOn w : worksons) {
+            System.out.println(w.toString());
+        }
 
-    // 테스트코드: PROJECT
-    loadProjectsOnData();
-    System.out.println("\nPROJECT TEST");
-    for (Project p : projects) {
-        System.out.println(p.toString());
-    }
+        // 테스트코드: DEPT_LOCATIONS
+        loadDeptLocationssOnData();
+        System.out.println("\nDEPT_LOCATIONS TEST");
+        for (DeptLocations dl : deptlocationss) {
+            System.out.println(dl.toString());
+        }
 
-    // 테스트코드: DEPENDENT
-    loadDepentdentsOnData();
-    System.out.println("\nDEPENDENT TEST");
-    for (Dependent dep : dependents) {
-        System.out.println(dep.toString());
-    }
+        // 테스트코드: PROJECT
+        loadProjectsOnData();
+        System.out.println("\nPROJECT TEST");
+        for (Project p : projects) {
+            System.out.println(p.toString());
+        }
+
+        // 테스트코드: DEPENDENT
+        loadDepentdentsOnData();
+        System.out.println("\nDEPENDENT TEST");
+        for (Dependent dep : dependents) {
+            System.out.println(dep.toString());
+        }
     }
 
     public DataModel() {
@@ -85,22 +87,51 @@ public class DataModel {
         //loadEmployeesData();
         //테스트코드
         //TestCode();
-  
+
     }
-    // DB LOGIN
-    public boolean tryLogin(String user,char[] pass,String dbname,String url) {
-      return DatabaseUtils.try_login(user,pass,dbname,url); 
+
+    //======================================================================
+    // 로그인 관련 관련 (MODEL 단)
+    //======================================================================   
+
+    public boolean tryLogin(LoginFormDataDTO logindata) {
+        return DatabaseUtils.try_login(logindata);
     }
+    
+    //======================================================================
+    //TableModel 관련 (MODEL 단)
+    //======================================================================   
+
+    public void buildEmployeeTableModel(String condition) {
+        loadEmployeesDataFittered(condition);
+        employeeTableModel = new EmployeeTableModel(employees);
+    }
+
+    public EmployeeTableModel getEmployeeTableModel() {
+        return employeeTableModel;
+    }
+
+    public Employee getEmployeeAt(int selectedRow) {
+        if (employeeTableModel != null) {
+            return employeeTableModel.getSelectedEmployee(selectedRow);
+        }
+        return null;
+    }
+
+    //======================================================================
+    // 아래는 모두 JDBC DAO 관련 코드
+    //======================================================================
+    
     
     
     //======================================================================
     //EMPLOYEE==============================================================
     //======================================================================   
     //부하직원 또는 부하직원의부하직원의.. 가 아닌 직원의 SSN 찾기
-    public List<String> findNotSubordinates(String query){
+    public List<String> findNotSubordinates(String query) {
         return EmployeeDAO.findNotSubordinates(query);
     }
-    
+
     // Employee 데이터를 로드하는 메서드
     public void loadEmployeesData() {
         this.employees = EmployeeDAO.loadData();  // 데이터베이스에서 직원 정보 로드
@@ -123,10 +154,10 @@ public class DataModel {
     //======================================================================
     //DEPARTMENT==============================================================
     //======================================================================   
-        public List<String> loadDepartmentsList() {
+    public List<String> loadDepartmentsList() {
         return DepartmentDAO.loadDepartmentsList();  // 데이터베이스에서 부서 정보 로드
     }
-    
+
     public void loadDepartmentsData() {
         this.departments = DepartmentDAO.loadData();  // 데이터베이스에서 부서 정보 로드
     }
