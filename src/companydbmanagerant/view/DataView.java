@@ -9,6 +9,7 @@ import companydbmanagerant.view.Login.LoginForm;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import companydbmanagerant.view.Main.QueryBuilderForm.Querybuilderform;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.event.ActionListener;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -30,13 +32,14 @@ public class DataView extends javax.swing.JFrame {
 
     private final MainForm mainForm;
     private final LoginForm loginForm;
+    private Querybuilderform querybuilderform;
 
     /**
      * Creates new form MainFrame
      */
     public DataView() {
         initComponents();
-
+        querybuilderform = null;
         mainForm = new MainForm();
         loginForm = new LoginForm();
 
@@ -44,10 +47,18 @@ public class DataView extends javax.swing.JFrame {
     }
 
     private void init() {
-        setSize(new Dimension(1300, 668));
+        setSize(new Dimension(1050, 600));
         setContentPane(loginForm);
         Notifications.getInstance().setJFrame(this);
         FlatLaf.updateUI();
+    }
+
+    public Querybuilderform getQuerybuilderform() {
+        return querybuilderform;
+    }
+
+    public void setQuerybuilderform(Querybuilderform querybuilderform) {
+        this.querybuilderform = querybuilderform;
     }
 
     public MainForm getMainForm() {
@@ -82,11 +93,11 @@ public class DataView extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1114, Short.MAX_VALUE)
+            .addGap(0, 1076, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 572, Short.MAX_VALUE)
+            .addGap(0, 600, Short.MAX_VALUE)
         );
 
         pack();

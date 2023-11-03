@@ -30,7 +30,16 @@ public class SQLQueryBuilder {
             "FROM EMPLOYEE E3 " +
             "WHERE E3.Ssn <> " + Ssn + " AND E3.Ssn NOT IN (SELECT Ssn FROM Subordinates);";
     }
-
+    public static String createWhereClauseIfNotEmpty(String condition){
+        if("".equals(condition)){
+            return "";
+            
+        }
+        else
+        {
+            return "WHERE "+condition;
+        }
+    }
 
     public static String createEmpolyeeWhereClause(String condition1, String condition2, String searchCombo3Text, String searchText) {
         // 기본적으로 WHERE 절을 시작합니다. 빈 문자열이 반환되면 WHERE 절이 쿼리에서 제거되어야 합니다.

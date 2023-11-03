@@ -4,6 +4,7 @@
  */
 package companydbmanagerant.controller;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import companydbmanagerant.model.DataModel;
 import companydbmanagerant.model.Department.Department;
 import companydbmanagerant.model.Employee.Employee;
@@ -14,10 +15,14 @@ import companydbmanagerant.view.Login.LoginForm;
 import companydbmanagerant.view.Main.EmployeeAddPanel;
 import companydbmanagerant.view.Main.EmployeeEditPanel;
 import companydbmanagerant.view.Main.FormDashboard;
+import companydbmanagerant.view.Main.QueryBuilderForm.NestedQueryBuilderScrollPane;
+import companydbmanagerant.view.Main.QueryBuilderForm.Querybuilderform;
+
 import companydbmanagerant.view.Main.TableModel.CustomCellRenderer;
 import companydbmanagerant.view.Modal.Modal;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,14 +32,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.table.TableModel;
+import net.miginfocom.swing.MigLayout;
 import raven.toast.Notifications;
 
 /**
@@ -59,16 +70,14 @@ public class DataController {
         formDashboard.addjButton1Listener(new addjButton1Listener());
         formDashboard.addjButton2Listener(new addjButton2Listener());
         formDashboard.addCheckBoxListeners(createCheckBoxItemListener());
-        formDashboard.addjComboBox1Listener(new addjComboBox1Listener());
-        formDashboard.addjComboBox2Listener(new addjComboBox2Listener());
         formDashboard.addEmployeeEditBtnListener(new addEmployeeEditBtnListener());
         formDashboard.addEmployeeAddBtnListener(new addEmployeeAddBtnListener());
+        formDashboard.addEmployeeDelBtnListener(new addEmployeeDelBtnListener());
+        formDashboard.addFilterBtnListener(new addFilterBtnListener());
 
         //LoginForm 리스너 관리
         this.view.getLoginForm().addCmdLoginListener(new addCmdLoginListener());
 
-        //콤보박스 초기화
-        handleComboBoxSelectionChanged("전체");
     }
 
 //-------------------------------------------------------
@@ -85,43 +94,6 @@ public class DataController {
             }
         };
     }
-
-    //콤보박스1 리스너 정의
-    class addjComboBox1Listener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JComboBox<String> comboBox = view.getMainForm().getFormDashboard().getjComboBox1();
-            JComboBox<String> comboBox2 = view.getMainForm().getFormDashboard().getjComboBox2();
-            JComboBox<String> comboBox3 = view.getMainForm().getFormDashboard().getjComboBox3();
-            JTextField textfield1 = view.getMainForm().getFormDashboard().getjTextField1();
-
-            String selected = (String) comboBox.getSelectedItem();
-            handleComboBoxSelectionChanged(selected);
-
-        }
-    }
-
-    //콤보박스2 리스너 정의
-    class addjComboBox2Listener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JComboBox<String> comboBox = view.getMainForm().getFormDashboard().getjComboBox2();
-            String selected = (String) comboBox.getSelectedItem();
-        }
-    }
-
-    //콤보박스3 리스너 정의
-    class addjComboBox3Listener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JComboBox<String> comboBox = view.getMainForm().getFormDashboard().getjComboBox3();
-            String selected = (String) comboBox.getSelectedItem();
-        }
-    }
-
     //로그인 버튼 리스너 정의
     class addCmdLoginListener implements ActionListener {
 
@@ -177,18 +149,27 @@ public class DataController {
             model.loadEmployeesData();
 
             //GUI 읽어옴
-            JComboBox<String> comboBox1 = view.getMainForm().getFormDashboard().getjComboBox1();
-            JComboBox<String> comboBox2 = view.getMainForm().getFormDashboard().getjComboBox2();
-            JComboBox<String> comboBox3 = view.getMainForm().getFormDashboard().getjComboBox3();
-            JTextField textfield1 = view.getMainForm().getFormDashboard().getjTextField1();
-
-            String condition1 = (String) comboBox1.getSelectedItem();
-            String condition2 = (String) comboBox2.getSelectedItem();
-            String condition3 = (String) comboBox3.getSelectedItem();
-            String searchText = (String) textfield1.getText();
-
-            // Where절 쿼리 생성 
-            String condition = SQLQueryBuilder.createEmpolyeeWhereClause(condition1, condition2, condition3, searchText);
+//            JComboBox<String> comboBox1 = view.getMainForm().getFormDashboard().getjComboBox1();
+//            JComboBox<String> comboBox2 = view.getMainForm().getFormDashboard().getjComboBox2();
+//            JComboBox<String> comboBox3 = view.getMainForm().getFormDashboard().getjComboBox3();
+//            JTextField textfield1 = view.getMainForm().getFormDashboard().getjTextField1();
+//
+//            String condition1 = (String) comboBox1.getSelectedItem();
+//            String condition2 = (String) comboBox2.getSelectedItem();
+//            String condition3 = (String) comboBox3.getSelectedItem();
+//            String searchText = (String) textfield1.getText();
+//
+//            // Where절 쿼리 생성 
+//            String condition = SQLQueryBuilder.createEmpolyeeWhereClause(condition1, condition2, condition3, searchText);
+             String condition = "";
+            Querybuilderform form =  view.getQuerybuilderform();
+            if(form != null){
+                String filterQuery = form.getRootNode().toSQL();
+                condition = SQLQueryBuilder.createWhereClauseIfNotEmpty(filterQuery);
+            }
+ 
+           
+            System.out.println(condition);
 
             // 쿼리 실행
             model.loadEmployeesDataFittered(condition);
@@ -233,13 +214,13 @@ public class DataController {
         @Override
         public void actionPerformed(ActionEvent e) {
 
-                model.loadDepartmentsData();
-                List<Department> departments = model.getDepartments();
+            model.loadDepartmentsData();
+            List<Department> departments = model.getDepartments();
 
-                String query = SQLQueryBuilder.createFindSSNsQuery();
-                List<String> SSNs = model.findNotSubordinates(query);
-                Modal modal = new Modal(view, new EmployeeAddPanel(departments, SSNs), "exitBtn");
-            
+            String query = SQLQueryBuilder.createFindSSNsQuery();
+            List<String> SSNs = model.findNotSubordinates(query);
+            Modal modal = new Modal(view, new EmployeeAddPanel(departments, SSNs), "exitBtn", true, null);
+
         }
     }
 
@@ -264,8 +245,41 @@ public class DataController {
 
                 String query = SQLQueryBuilder.createFindNotSubordinatesQuery(selectedEmployee.getSsn());
                 List<String> notSubordinates = model.findNotSubordinates(query);
-                Modal modal = new Modal(view, new EmployeeEditPanel(selectedEmployee, departments, notSubordinates), "exitBtn");
+                Modal modal = new Modal(view, new EmployeeEditPanel(selectedEmployee, departments, notSubordinates), "exitBtn", true, null);
             }
+        }
+    }
+
+    class addFilterBtnListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            Querybuilderform form = view.getQuerybuilderform();
+            if (form == null) {
+                List<String> departments = model.loadDepartmentsList();
+                view.setQuerybuilderform(new Querybuilderform(departments));
+                form = view.getQuerybuilderform();
+            }
+
+            // 닫기 버튼에 대한 ActionListener 정의
+            ActionListener closeBtnListener = new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    FormDashboard formDashboard = view.getMainForm().getFormDashboard();
+                    JButton filterBtn = formDashboard.getFilterBtn();
+                    int filtercnt = view.getQuerybuilderform().getFiltercnt();
+                    if (filtercnt == 0) {
+                        filterBtn.setText("Filters");
+                    } else {
+                        filterBtn.setText("Filters (" + String.valueOf(filtercnt) + ")");
+
+                    }
+
+                }
+            };
+
+            Modal modal = new Modal(view, form, "exitBtn", false, closeBtnListener); //리스너 주입
         }
     }
 
@@ -275,86 +289,6 @@ public class DataController {
         public void actionPerformed(ActionEvent e) {
 
         }
-    }
-
-//-------------------------------------------------------
-//-- FormDashboard의 콤보박스 상호작용 로직 --------------
-//-------------------------------------------------------
-    public void handleComboBoxSelectionChanged(String selectedItem) {
-        FormDashboard formdashboard = view.getMainForm().getFormDashboard();
-        updateComboBoxBasedOnSelection(formdashboard.getjComboBox2(), formdashboard.getjComboBox3(), selectedItem);
-        updateTextFieldBasedOnSelection(formdashboard.getjTextField1(), selectedItem);
-    }
-
-    private void updateTextFieldBasedOnSelection(JTextField textField, String selectedItem) {
-        boolean isVisible = !("전체".equals(selectedItem) || "Sex".equals(selectedItem) || "Dname".equals(selectedItem));
-        DataViewUtil.setTextFieldVisible(textField, isVisible);
-    }
-
-    private void updateComboBoxBasedOnSelection(JComboBox<String> comboBox1, JComboBox<String> comboBox2, String selectedItem) {
-        // 첫 번째 콤보 박스에 대한 아이템 설정
-        List<String> newItemsForComboBox1 = generateItemsForComboBox1(selectedItem);
-        DataViewUtil.setComboBoxItems(comboBox1, newItemsForComboBox1);
-        DataViewUtil.setComboBoxVisible(comboBox1, !newItemsForComboBox1.isEmpty());
-
-        // 두 번째 콤보 박스에 대한 아이템 설정
-        List<String> newItemsForComboBox2 = generateItemsForComboBox2(selectedItem);
-        DataViewUtil.setComboBoxItems(comboBox2, newItemsForComboBox2);
-        DataViewUtil.setComboBoxVisible(comboBox2, !newItemsForComboBox2.isEmpty());
-    }
-
-    private List<String> generateItemsForComboBox1(String selectedItem) {
-        List<String> newItems = new ArrayList<>();
-        switch (selectedItem) {
-            case "전체":
-
-                break;
-            case "First Name":
-            case "Minit":
-            case "Last Name":
-            case "SSN":
-            case "Address":
-            case "Sex":
-            case "Super SSN":
-            case "Dname":
-                newItems.add("=");
-                newItems.add("!=");
-                break;
-            case "Birth Date":
-                newItems.add("=");
-                newItems.add(">");
-                newItems.add("<");
-                break;
-            case "Salary":
-                newItems.add("=");
-                newItems.add(">");
-                newItems.add(">=");
-                newItems.add("<");
-                newItems.add("<=");
-                newItems.add("!=");
-                break;
-            default:
-        }
-        return newItems;
-    }
-
-    private List<String> generateItemsForComboBox2(String selectedItem) {
-        List<String> newItems = new ArrayList<>();
-        switch (selectedItem) {
-            case "Sex":
-                newItems.add("F");
-                newItems.add("M");
-                break;
-            case "Dname":
-                model.loadDepartmentsData();
-                List<Department> departments = model.getDepartments();
-                for (Department department : departments) {
-                    newItems.add(department.getDname());
-                }
-                break;
-            // ... (필요한 경우 추가 case 구문을 여기에 배치할 수 있습니다.)
-        }
-        return newItems;
     }
 
 }

@@ -8,10 +8,11 @@ package companydbmanagerant.view.Modal;
  *
  * @author PHC
  */
-
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,14 +31,17 @@ public class Modal {
 
     private final JComponent glassPane;
     private final JFrame mainFrame;
-    private final JPanel modalPanel;
+    private final JComponent modalPanel;
     private final String exitBtnName;
-
-    public Modal(JFrame frame, JPanel modalPane, String exitButtonName) {
+    private final boolean setBtnCircle;
+    ActionListener additionalAction;
+    public Modal(JFrame frame, JComponent modalPane, String exitButtonName, boolean setBtnCircle,ActionListener additionalAction) {
         this.mainFrame = frame;
         this.modalPanel = modalPane;
         this.exitBtnName = exitButtonName;
         this.glassPane = createGlassPane();
+        this.additionalAction = additionalAction;
+        this.setBtnCircle = setBtnCircle;
         initialize();
     }
 
@@ -55,48 +59,59 @@ public class Modal {
     private void initialize() {
         setupGlassPane();
         setupModalPanel();
-        setupExitButton();
+        setupExitButton(additionalAction);
         preventUnderlyingInteractions();
-        
+
         mainFrame.setGlassPane(glassPane);
         glassPane.setVisible(true);
         adjustComboBoxPopups();
     }
+
     private void adjustComboBoxPopups() {  // 모달패널 뒤에 콤보박스가 뜨는 현상 제거 
-    for (java.awt.Component comp : modalPanel.getComponents()) {
-        if (comp instanceof JComboBox) {
-            JComboBox comboBox = (JComboBox) comp;
-            comboBox.setLightWeightPopupEnabled(false);
+        for (java.awt.Component comp : modalPanel.getComponents()) {
+            if (comp instanceof JComboBox) {
+                JComboBox comboBox = (JComboBox) comp;
+                comboBox.setLightWeightPopupEnabled(false);
+            }
         }
     }
-}
+
     private void setupGlassPane() {
         glassPane.setLayout(null);
         glassPane.add(modalPanel);
         modalPanel.setBounds(
-            (mainFrame.getWidth() - modalPanel.getPreferredSize().width) / 2,
-            (mainFrame.getHeight() - modalPanel.getPreferredSize().height) / 2,
-            modalPanel.getPreferredSize().width,
-            modalPanel.getPreferredSize().height
+                (mainFrame.getWidth() - modalPanel.getPreferredSize().width) / 2,
+                (mainFrame.getHeight() - modalPanel.getPreferredSize().height) / 2,
+                modalPanel.getPreferredSize().width,
+                modalPanel.getPreferredSize().height
         );
     }
 
     private void setupModalPanel() {
         modalPanel.putClientProperty(FlatClientProperties.STYLE,
-            "[light]background: tint(@background,50%);"
-            + "[dark]background: shade(@background,15%);"
-            + "[light]border: 16,16,16,16,shade(@background,10%),,8;"
-            + "[dark]border: 16,16,16,16,tint(@background,10%),,8");
+                "[light]background: tint(@background,50%);"
+                + "[dark]background: shade(@background,15%);"
+                + "[light]border: 16,16,16,16,shade(@background,10%),,8;"
+                + "[dark]border: 16,16,16,16,tint(@background,10%),,8");
     }
 
-    private void setupExitButton() {
-        JButton exitButton = findButtonByName(exitBtnName);
-        if (exitButton != null) {
-            exitButton.addActionListener(e -> glassPane.setVisible(false));
+private void setupExitButton(ActionListener additionalAction) {
+    JButton exitButton = findButtonByName(modalPanel, exitBtnName);
+    if (exitButton != null) {
+        // 기존의 ActionListener를 추가
+        exitButton.addActionListener(e -> glassPane.setVisible(false));
+
+        // 추가적인 ActionListener를 등록
+        if (additionalAction != null) {
+            exitButton.addActionListener(additionalAction);
+        }
+
+        // 버튼을 원형으로 만드는 스타일 적용
+        if (setBtnCircle) {
             exitButton.putClientProperty(FlatClientProperties.STYLE, "arc: 40;");
         }
     }
-    
+}
     private void preventUnderlyingInteractions() {
         glassPane.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -106,12 +121,25 @@ public class Modal {
         });
     }
 
-    private JButton findButtonByName(String name) {
-        for (java.awt.Component comp : modalPanel.getComponents()) {
+    private JButton findButtonByName(Container container, String name) {
+        for (Component comp : container.getComponents()) {
             if (comp instanceof JButton && name.equals(comp.getName())) {
                 return (JButton) comp;
+            } else if (comp instanceof Container) {
+                JButton button = findButtonByName((Container) comp, name);
+                if (button != null) {
+                    return button;
+                }
             }
         }
         return null;
     }
+//    private JButton findButtonByName(String name) {
+//        for (java.awt.Component comp : modalPanel.getComponents()) {
+//            if (comp instanceof JButton && name.equals(comp.getName())) {
+//                return (JButton) comp;
+//            }
+//        }
+//        return null;
+//    }
 }
