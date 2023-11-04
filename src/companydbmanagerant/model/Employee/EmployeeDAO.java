@@ -220,6 +220,17 @@ public class EmployeeDAO {
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        } finally {
+            // 사용한 자원 반환
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+            }
         }
     }
     private static void changeSuperviseSsn(Employee employee) {
