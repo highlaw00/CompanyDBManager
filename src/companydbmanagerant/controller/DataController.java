@@ -208,10 +208,10 @@ public class DataController {
         // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
         if (updateSuccess) {
             //성공시 model단에서 해야할거 호출(ex, 테이블 다시불러오기)
-            
-            //성공시 View단에서 해야할거 호출(ex 성공알림, modal창 닫기)            
+            retrieveDB();
+            //성공시 View단에서 해야할거 호출(ex 성공알림, modal창 닫기)
             view.whenEmployeeAddingSuccess();
-           
+
         } else {
             //실패시 View단에서 해야할거 호출(ex 실패알림 ) 
             view.whenEmployeeAddingFailed();

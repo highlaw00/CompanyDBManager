@@ -4,6 +4,7 @@
  */
 package companydbmanagerant.view.Main;
 
+import companydbmanagerant.model.Employee.EmployeeDAO;
 import companydbmanagerant.view.Main.*;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.ui.FlatUIUtils;
@@ -270,6 +271,15 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
             isValidate = false;
         } else {
             setBorderToValid(txtSalary);
+        }
+
+        // Ssn Redundancy check
+        if (EmployeeDAO.isDuplicatedSsn(txtSSN.getText())) {
+            Notifications.getInstance().show(Notifications.Type.ERROR, 2000, "Duplicated SSN");
+            setBorderToError(txtSSN);
+            isValidate = false;
+        } else {
+            setBorderToValid(txtSSN);
         }
 
         // Additional validations can be added for combo boxes, depending on their possible values

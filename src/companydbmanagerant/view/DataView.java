@@ -155,7 +155,7 @@ public class DataView extends javax.swing.JFrame {
     }
 
     private void notifyUpdateFailed(String msg) {
-        Notifications.getInstance().show(Notifications.Type.SUCCESS, msg);
+        Notifications.getInstance().show(Notifications.Type.ERROR, msg);
     }
 
     // ==========================================================

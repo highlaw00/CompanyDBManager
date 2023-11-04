@@ -13,13 +13,13 @@ import javax.swing.*;
  *
  * @author PHC
  */
-public class Querybuilderform extends JPanel {
+public class QueryBuilderForm extends JPanel {
 
     private JPanel topPanel;
     private List<String> departments;
     private JPanel bottomPanel;
     private NestedQueryBuilderScrollPane queryBuilderPanel;
-    public Querybuilderform(List<String> departments) {
+    public QueryBuilderForm(List<String> departments) {
         this.departments = departments;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         topPanel = new JPanel();
