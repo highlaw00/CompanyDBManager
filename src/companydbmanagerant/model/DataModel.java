@@ -12,13 +12,17 @@ import companydbmanagerant.model.Employee.EmployeeDAO;
 import companydbmanagerant.model.Employee.Employee;
 import companydbmanagerant.model.DeptLocations.DeptLocations;
 import companydbmanagerant.model.DeptLocations.DeptLocationsDAO;
+import companydbmanagerant.model.Employee.EmployeeUtils;
 import companydbmanagerant.model.Project.Project;
 import companydbmanagerant.model.Project.ProjectDAO;
 import companydbmanagerant.model.TableModel.EmployeeTableModel;
 import companydbmanagerant.model.WorksOn.WorksOn;
 import companydbmanagerant.model.WorksOn.WorksOnDAO;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -101,12 +105,14 @@ public class DataModel {
     public Employee getSelectedEmployee() {
         return selectedEmployee;
     }
-       //=====================================================================
-       // 직원 수정============================================================
+    //=====================================================================
+    // 직원 수정============================================================
+    //=====================================================================
+
     public boolean updateEmployeeInfo(Employee previousEmployee, Map<String, String> EditedEmployee) {
         //데이터 비교하여 변경할 리스트를 만듬
         System.out.println("데이터 비교하여 취합 완료");
-        
+
         // 쿼리빌더에서 쿼리생성
         System.out.println("쿼리빌더에서 생성완료");
 
@@ -116,17 +122,20 @@ public class DataModel {
         return true;
     }
 
-    // 직원 추가
+    //=====================================================================
+    // 직원 추가============================================================
+    //=====================================================================
     public boolean addEmployeeInfo(Map<String, String> EditedEmployee) {
-        //DB에 접속하여 문제사항이 있는지 체크 
-         System.out.println("쿼리빌더에서 생성완료");
-         
-        // 쿼리빌더에서 쿼리생성
-        System.out.println("쿼리빌더에서 생성완료");
 
-        // 트렌젝션
-        System.out.println("트렌젝션");
-
+        try {
+        //전달할 객체 생성
+            Employee employee = EmployeeUtils.createEmployeeFromMap(EditedEmployee);
+            boolean isSuccessful = EmployeeDAO.insertEmployee(employee);
+            
+        } catch (ParseException ex) {
+            Logger.getLogger(DataModel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         return true;
     }
 

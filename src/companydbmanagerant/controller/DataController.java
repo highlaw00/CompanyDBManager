@@ -178,9 +178,10 @@ public class DataController {
         String query = SQLQueryBuilder.createFindSSNsQuery();
         List<String> SSNs = model.findNotSubordinates(query);
 
-        view.showAddDialog(departments, SSNs,new ExecuteAddButtonListener(this));
+        view.showAddDialog(departments, SSNs, new ExecuteAddButtonListener(this));
 
     }
+
     // 2. DB 변경 수행 관련 정의
     class ExecuteAddButtonListener implements ActionListener {
 
@@ -199,18 +200,24 @@ public class DataController {
     public void executeAdd() {
         //Employee 정보 갱신 관련 작성 
 
-        Map<String, String> EditedEmployee = view.getEditPanelFieldTexts();
-        boolean updateSuccess = model.addEmployeeInfo(EditedEmployee);
+        Map<String, String> AddEmployee = view.getAddPanelFieldTexts();
+        
+        //모델단에서 트렌젝션 실행 
+        boolean updateSuccess = model.addEmployeeInfo(AddEmployee);
 
-                // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
-                if (updateSuccess) {
-                    // 업데이트 성공
-                    System.out.println("데이터베이스 업데이트 성공!");
-                } else {
-                    // 업데이트 실패
-                    System.out.println("데이터베이스 업데이트 실패.");
-                }
+        // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
+        if (updateSuccess) {
+            //성공시 model단에서 해야할거 호출(ex, 테이블 다시불러오기)
+            
+            //성공시 View단에서 해야할거 호출(ex 성공알림, modal창 닫기)            
+            view.whenEmployeeAddingSuccess();
+           
+        } else {
+            //실패시 View단에서 해야할거 호출(ex 실패알림 ) 
+            view.whenEmployeeAddingFailed();
+        }
     }
+
     // ================================================
     // EmployeeDel 버튼 관련  (CONTROLL 단)
     // ================================================
@@ -291,16 +298,16 @@ public class DataController {
         //Employee 정보 갱신 관련 작성 
         Employee previousEmployee = model.getSelectedEmployee();
         Map<String, String> EditedEmployee = view.getEditPanelFieldTexts();
-        boolean updateSuccess = model.updateEmployeeInfo(previousEmployee,EditedEmployee);
+        boolean updateSuccess = model.updateEmployeeInfo(previousEmployee, EditedEmployee);
 
-                // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
-                if (updateSuccess) {
-                    // 업데이트 성공
-                    System.out.println("데이터베이스 업데이트 성공!");
-                } else {
-                    // 업데이트 실패
-                    System.out.println("데이터베이스 업데이트 실패.");
-                }
+        // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
+        if (updateSuccess) {
+            // 업데이트 성공
+            System.out.println("데이터베이스 업데이트 성공!");
+        } else {
+            // 업데이트 실패
+            System.out.println("데이터베이스 업데이트 실패.");
+        }
     }
 
     // ================================================

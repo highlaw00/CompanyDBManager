@@ -53,6 +53,48 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
         setEmployeeValues();
     }
 
+    public JComboBox<String> getComboDname() {
+        return comboDname;
+    }
+
+    public JComboBox<String> getComboSEX() {
+        return comboSEX;
+    }
+
+    public JComboBox<String> getComboSuperSSN() {
+        return comboSuperSSN;
+    }
+
+    public JTextField getTxtAddress() {
+        return txtAddress;
+    }
+
+    public JTextField getTxtBirth() {
+        return txtBirth;
+    }
+
+    public JTextField getTxtFirstName() {
+        return txtFirstName;
+    }
+
+    public JTextField getTxtLastName() {
+        return txtLastName;
+    }
+
+    public JTextField getTxtMinit() {
+        return txtMinit;
+    }
+
+    public JTextField getTxtSSN() {
+        return txtSSN;
+    }
+
+    public JTextField getTxtSalary() {
+        return txtSalary;
+    }
+
+    
+    
     private void setDepartmentCombo() {
         comboDname.removeAllItems();
         for (Department department : departments) {

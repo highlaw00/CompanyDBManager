@@ -150,6 +150,14 @@ public class DataView extends javax.swing.JFrame {
         Notifications.getInstance().show(Notifications.Type.SUCCESS, "DB 검색이 완료되었습니다.");
     }
 
+    private void notifyUpdateSuccess(String msg) {
+        Notifications.getInstance().show(Notifications.Type.SUCCESS, msg);
+    }
+
+    private void notifyUpdateFailed(String msg) {
+        Notifications.getInstance().show(Notifications.Type.SUCCESS, msg);
+    }
+
     // ==========================================================
     // EmployeeADD 버튼 관련 
     // ==========================================================
@@ -165,7 +173,45 @@ public class DataView extends javax.swing.JFrame {
         emplyoeeAddModal = new Modal(this, new EmployeeAddPanel(departments, SSNs), buttonListeners);
     }
 
+    // GUI 필드상의 정보를 리턴
+    public Map<String, String> getAddPanelFieldTexts() {
+        JComponent panel = emplyoeeAddModal.getModalPanel();
+        Map<String, String> fieldTexts = new HashMap<>();
+        if (panel instanceof EmployeeAddPanel) {
+            EmployeeAddPanel employeeEditPanel = (EmployeeAddPanel) panel;
+            // JComboBox의 선택된 아이템을 추출하고 그 값을 Map에 넣습니다.
+            fieldTexts.put("Dname", (String) employeeEditPanel.getComboDname().getSelectedItem());
+            fieldTexts.put("SEX", (String) employeeEditPanel.getComboSEX().getSelectedItem());
+            fieldTexts.put("SuperSSN", (String) employeeEditPanel.getComboSuperSSN().getSelectedItem());
 
+            // JTextField의 텍스트를 추출하고 그 값을 Map에 넣습니다.
+            fieldTexts.put("Address", employeeEditPanel.getTxtAddress().getText());
+            fieldTexts.put("Birth", employeeEditPanel.getTxtBirth().getText());
+            fieldTexts.put("FirstName", employeeEditPanel.getTxtFirstName().getText());
+            fieldTexts.put("LastName", employeeEditPanel.getTxtLastName().getText());
+            fieldTexts.put("Minit", employeeEditPanel.getTxtMinit().getText());
+            fieldTexts.put("SSN", employeeEditPanel.getTxtSSN().getText());
+            fieldTexts.put("Salary", employeeEditPanel.getTxtSalary().getText());
+        }
+        return fieldTexts;
+
+    }
+    
+    public void whenEmployeeAddingSuccess() {
+        //성공시 해야할것
+        //1. notify 알림
+        notifyUpdateSuccess("DB에 새로운 직원이 삽입되었습니다.");
+        //2. ....
+    }
+    
+    public void whenEmployeeAddingFailed() {
+        //실패시 해야할것
+        //1. notify 알림
+        notifyUpdateFailed("DB에 새로운 직원이 삽입에 실패하였습니다.");
+        //2. ....
+    }
+    
+    
     // ==========================================================
     // EmployeeDel 버튼 관련 
     // ==========================================================
@@ -198,7 +244,7 @@ public class DataView extends javax.swing.JFrame {
         emplyoeeEditModal = new Modal(this, new EmployeeEditPanel(employee, departments, notSubordinates), buttonListeners);
     }
 
-    public  Map<String, String> getEditPanelFieldTexts() {
+    public Map<String, String> getEditPanelFieldTexts() {
         JComponent panel = emplyoeeEditModal.getModalPanel();
         Map<String, String> fieldTexts = new HashMap<>();
         if (panel instanceof EmployeeEditPanel) {
@@ -218,13 +264,13 @@ public class DataView extends javax.swing.JFrame {
             fieldTexts.put("Salary", employeeEditPanel.getTxtSalary().getText());
         }
         return fieldTexts;
-       
+
     }
 
 // ==========================================================
 // Filter버튼 관련 
 // ==========================================================
-public void addAddFilterBtnListener(ActionListener listner) {
+    public void addAddFilterBtnListener(ActionListener listner) {
         FormDashboard formDashboard = mainForm.getFormDashboard();
         JButton filterBtn = formDashboard.getFilterBtn();
         filterBtn.addActionListener(listner);
@@ -236,7 +282,7 @@ public void addAddFilterBtnListener(ActionListener listner) {
         }
         ActionListener closeBtnListener = new ActionListener() {
             @Override
-public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 FormDashboard formDashboard = getMainForm().getFormDashboard();
                 JButton filterBtn = formDashboard.getFilterBtn();
                 int filtercnt = getQueryBuilderForm().getFiltercnt();
@@ -322,7 +368,7 @@ public void actionPerformed(ActionEvent e) {
         // GUI 이벤트 처리 스레드에서 실행될 작업을 예약
         SwingUtilities.invokeLater(new Runnable() {
             @Override
-public void run() {
+            public void run() {
                 JTextField textField = loginForm.getTxtPass(); // LoginForm 내부의 텍스트 필드 접근 메서드가 필요합니다.
                 textField.requestFocusInWindow();
             }

@@ -112,7 +112,7 @@ public class EmployeeTableModel extends AbstractTableModel {
             case "Sex":
                 return employee.getSex();
             case "Salary":
-                return employee.getSalary();  // 숫자 형식이므로 필요에 따라 문자열로 변환할 수 있습니다.
+                return employee.getSalary().toString();  // 숫자 형식이므로 필요에 따라 문자열로 변환할 수 있습니다.
             case "Super SSN":
                 return employee.getSuperSsn();
             case "Dname":
