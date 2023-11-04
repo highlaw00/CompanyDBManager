@@ -155,7 +155,7 @@ public class DataView extends javax.swing.JFrame {
     }
 
     public void notifyUpdateFailed(String msg) {
-        Notifications.getInstance().show(Notifications.Type.SUCCESS, msg);
+        Notifications.getInstance().show(Notifications.Type.ERROR, msg);
     }
 
     // ==========================================================
@@ -166,11 +166,45 @@ public class DataView extends javax.swing.JFrame {
         formDashboard.getEmployeeAddBtn().addActionListener(listener);
     }
 
-    public void showAddDialog(List<Department> departments, List<String> SSNs, ActionListener listener) {
+    public void showAddDialog(List<Department> departments, List<String> SSNs, ActionListener listener, ActionListener listener2) {
         Map<String, ActionListener> buttonListeners = new HashMap<>();
         buttonListeners.put("exitBtnCircle", null);
         buttonListeners.put("executeBtn", listener);
+        buttonListeners.put("checkValidBtn", listener2);
         emplyoeeAddModal = new Modal(this, new EmployeeAddPanel(departments, SSNs), buttonListeners);
+    }
+
+    public boolean checkValidAddDialog() {
+        JComponent panel = emplyoeeAddModal.getModalPanel();
+        Map<String, String> fieldTexts = new HashMap<>();
+        if (panel instanceof EmployeeAddPanel) {
+            EmployeeAddPanel employeeEditPanel = (EmployeeAddPanel) panel;
+
+            if (employeeEditPanel.validateInput()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void setSsnFieldError() {
+        JComponent panel = emplyoeeAddModal.getModalPanel();
+        Map<String, String> fieldTexts = new HashMap<>();
+        if (panel instanceof EmployeeAddPanel) {
+            EmployeeAddPanel employeeEditPanel = (EmployeeAddPanel) panel;
+            employeeEditPanel.setBorderToError(employeeEditPanel.getTxtSSN());
+
+        }
+    }
+
+    public void setEnabledAddExecuteBtn(boolean bool) {
+        JComponent panel = emplyoeeAddModal.getModalPanel();
+        Map<String, String> fieldTexts = new HashMap<>();
+        if (panel instanceof EmployeeAddPanel) {
+            EmployeeAddPanel employeeEditPanel = (EmployeeAddPanel) panel;
+            employeeEditPanel.getjButton2().setEnabled(bool);
+        }
     }
 
     // GUI 필드상의 정보를 리턴
@@ -196,22 +230,21 @@ public class DataView extends javax.swing.JFrame {
         return fieldTexts;
 
     }
-    
+
     public void whenEmployeeAddingSuccess() {
         //성공시 해야할것
         //1. notify 알림
         notifyUpdateSuccess("DB에 새로운 직원이 삽입되었습니다.");
         //2. ....
     }
-    
+
     public void whenEmployeeAddingFailed() {
         //실패시 해야할것
         //1. notify 알림
         notifyUpdateFailed("DB에 새로운 직원이 삽입에 실패하였습니다.");
         //2. ....
     }
-    
-    
+
     // ==========================================================
     // EmployeeDel 버튼 관련 
     // ==========================================================

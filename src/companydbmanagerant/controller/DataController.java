@@ -179,11 +179,47 @@ public class DataController {
         String query = SQLQueryBuilder.createFindSSNsQuery();
         List<String> SSNs = model.findNotSubordinates(query);
 
-        view.showAddDialog(departments, SSNs, new ExecuteAddButtonListener(this));
+        view.showAddDialog(departments, SSNs, new ExecuteAddButtonListener(this), new CheckVaildButtonListener(this));
 
     }
 
-    // 2. DB 변경 수행 관련 정의
+    // 무결성검사 리스너 
+    class CheckVaildButtonListener implements ActionListener {
+
+        private DataController controller;
+
+        public CheckVaildButtonListener(DataController controller) {
+            this.controller = controller;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            controller.checkValidCanAdd(); // Controller의 메소드를 호출합니다.
+        }
+    }
+
+    public void checkValidCanAdd() {
+        if (view.checkValidAddDialog()) {
+            Map<String, String> FieldTexts = view.getAddPanelFieldTexts();
+            if (FieldTexts.containsKey("SSN")) {
+                String ssn = FieldTexts.get("SSN");
+
+                if (EmployeeDAO.isDuplicatedSsn(ssn)) {
+                    Notifications.getInstance().show(Notifications.Type.ERROR, 2000, "Duplicated SSN");
+                    view.setSsnFieldError();
+                    view.setEnabledAddExecuteBtn(false);
+                    return;
+
+                } else {
+                    view.setEnabledAddExecuteBtn(true);
+                    return;
+                }
+            }
+        }
+         view.setEnabledAddExecuteBtn(false);
+    }
+
+// 2. DB 변경 수행 관련 정의
     class ExecuteAddButtonListener implements ActionListener {
 
         private DataController controller;
@@ -217,6 +253,7 @@ public class DataController {
         } else {
             //실패시 View단에서 해야할거 호출(ex 실패알림 ) 
             view.whenEmployeeAddingFailed();
+
         }
     }
 
@@ -253,6 +290,7 @@ public class DataController {
                 } else {
                     // 업데이트 실패
                     view.notifyUpdateFailed("데이터 삭제 실패");
+
                 }
 
             }
@@ -301,6 +339,7 @@ public class DataController {
                 String query = SQLQueryBuilder.createFindNotSubordinatesQuery(selectedEmployee.getSsn());
                 List<String> notSubordinates = model.findNotSubordinates(query);
                 view.showEditDialog(selectedEmployee, departments, notSubordinates, new ExecuteEditButtonListener(this)); // View를 통해 대화상자 표시
+
             }
         }
     }
@@ -334,6 +373,7 @@ public class DataController {
         } else {
             // 업데이트 실패
             view.notifyUpdateFailed("데이터베이스 업데이트 실패");
+
         }
     }
 
