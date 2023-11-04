@@ -250,7 +250,6 @@ public class EmployeeDAO {
     public static boolean insertEmployee(Employee employee) {
         Connection conn = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null;
 
         try {
             conn = DatabaseUtils.connect();
@@ -288,9 +287,6 @@ public class EmployeeDAO {
         } finally {
             // 사용한 자원 반환
             try {
-                if (rs != null) {
-                    rs.close();
-                }
                 if (pstmt != null) {
                     pstmt.close();
                 }
