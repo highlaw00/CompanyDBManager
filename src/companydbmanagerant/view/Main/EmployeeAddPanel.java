@@ -19,6 +19,7 @@ import raven.toast.Notifications;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -48,6 +49,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
         // TextField와 ComboBox에 Employee 객체의 값을 설정
         jButton2.setEnabled(false);
         jButton2.setName("executeBtn");
+        jButton3.setName("checkValidBtn");
         setDepartmentCombo();
         setSuperSSNCombo();
         setEmployeeValues();
@@ -93,6 +95,10 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
         return txtSalary;
     }
 
+    public JButton getjButton2() {
+        return jButton2;
+    }
+
     
     
     private void setDepartmentCombo() {
@@ -135,7 +141,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
 
     }
 
-    private void setBorderToError(JComponent component) {
+    public void setBorderToError(JComponent component) {
         component.putClientProperty(FlatClientProperties.STYLE, ""
                 + "outlineColor:$ToError.outlineColor;"
                 + "focusedBorderColor:$ToError.focusedBorderColor;"
@@ -190,7 +196,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
         });
     }
 
-    private boolean validateInput() { //무결성 검사 
+    public boolean validateInput() { //무결성 검사 
 
         boolean isValidate = true;
         // Reset borders to default
@@ -525,9 +531,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtLastNameActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        if (validateInput()) {
-            jButton2.setEnabled(true);
-        }
+
     }//GEN-LAST:event_jButton3ActionPerformed
 
 

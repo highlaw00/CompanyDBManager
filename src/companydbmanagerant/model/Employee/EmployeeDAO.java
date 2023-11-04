@@ -418,6 +418,47 @@ public class EmployeeDAO {
         }
         return true;
     }
+    public static boolean isDuplicatedSsn(String ssn) {
+        boolean isDuplicated = false;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        // 직원이 이미 존재하는지 확인
+        try {
+            conn = DatabaseUtils.connect();
+            System.out.println("DB CONNECTED: FOR CHECK DUPLICATED EMPLOYEE.");
+            String sql = "SELECT * FROM EMPLOYEE WHERE Ssn=" + ssn;
+            pstmt = conn.prepareStatement(sql);
+
+            rs = pstmt.executeQuery();
+
+            // 중복된 행이 존재하여 삽입 실패 처리
+            if (rs.next()) {
+                isDuplicated = true;
+            }
+        } catch (SQLException e) {
+
+        } finally {
+            // 사용한 자원 반환
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+            }
+        }
+
+        return isDuplicated;
+    }
+    
+    
     
 //        private static void allsexChange(List<Employee> beEditedEmployee,String Value) {
 //        Connection conn = null;
