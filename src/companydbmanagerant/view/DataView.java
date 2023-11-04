@@ -146,15 +146,15 @@ public class DataView extends javax.swing.JFrame {
     // ==========================================================
     // 노티 관련 
     // ==========================================================
-    private void notifySuccess() {
+    public void notifySuccess() {
         Notifications.getInstance().show(Notifications.Type.SUCCESS, "DB 검색이 완료되었습니다.");
     }
 
-    private void notifyUpdateSuccess(String msg) {
+    public void notifyUpdateSuccess(String msg) {
         Notifications.getInstance().show(Notifications.Type.SUCCESS, msg);
     }
 
-    private void notifyUpdateFailed(String msg) {
+    public void notifyUpdateFailed(String msg) {
         Notifications.getInstance().show(Notifications.Type.SUCCESS, msg);
     }
 
