@@ -126,18 +126,58 @@ public class DataModel {
     // 직원 추가============================================================
     //=====================================================================
     public boolean addEmployeeInfo(Map<String, String> EditedEmployee) {
-
+        boolean isSuccessful = false;
         try {
-        //전달할 객체 생성
+            //전달할 객체 생성
             Employee employee = EmployeeUtils.createEmployeeFromMap(EditedEmployee);
-            boolean isSuccessful = EmployeeDAO.insertEmployee(employee);
-            
+
+            // Dname to Dno
+            String key = "Dname";
+            if (EditedEmployee.containsKey("Dname")) { // 키가 존재하는지 먼저 확인
+                String dname = EditedEmployee.get(key);
+                List<String> dnos = DepartmentDAO.findDnoByDname(dname);
+                if (dnos.size() == 1) {
+                    String dnoStr = dnos.get(0);
+                    int dno = Integer.parseInt(dnoStr);
+                    employee.setDno(dno);
+
+                    //트렌젝션 수행 
+                    isSuccessful = EmployeeDAO.insertEmployee(employee);
+                }
+            }
+
         } catch (ParseException ex) {
             Logger.getLogger(DataModel.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } catch (NumberFormatException e) {
+            return false;
         }
-        
-        return true;
+
+        return isSuccessful;
     }
+    //=====================================================================
+    // 직원 일괄변경============================================================
+    //=====================================================================
+//    public boolean modifyEmployeesInfo(List<Employee> beEditedEmployee, String WhatTodo, String value) {
+//
+//        
+//        if(WhatTodo.equals( "직원성별일괄변경"))
+//        {
+//            EmployeeDAO.allsexChange(value);
+//            
+//        }
+//        return true;
+////        try {
+////        //전달할 객체 생성
+////            Employee employee = EmployeeUtils.createEmployeeFromMap(EditedEmployee);
+////            boolean isSuccessful = EmployeeDAO.insertEmployee(employee);
+////            
+////        } catch (ParseException ex) {
+////            Logger.getLogger(DataModel.class.getName()).log(Level.SEVERE, null, ex);
+////        }
+////        
+////        return true;
+//    }
 
     //======================================================================
     // 로그인 관련 관련 (MODEL 단)

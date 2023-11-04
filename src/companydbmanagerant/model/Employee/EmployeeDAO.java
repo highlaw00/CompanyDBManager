@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Types;
+import raven.toast.Notifications;
 
 /**
  *
@@ -239,6 +240,8 @@ public class EmployeeDAO {
 
             return true;
         } catch (SQLException e) {
+            
+             Notifications.getInstance().show(Notifications.Type.ERROR, e.toString());
             e.printStackTrace();
             return false;
         } finally {
@@ -415,4 +418,33 @@ public class EmployeeDAO {
         }
         return true;
     }
+    
+//        private static void allsexChange(List<Employee> beEditedEmployee,String Value) {
+//        Connection conn = null;
+//        PreparedStatement pstmt = null;
+//        ResultSet rs = null;
+//
+//        try {
+//            conn = DatabaseUtils.connect();
+//            System.out.println("DB CONNECTED");
+//
+//            String sql = "UPDATE DEPARTMENT SET Mgr_Ssn=DEFAULT WHERE Mgr_Ssn=" + employee.getSsn();
+//            pstmt = conn.prepareStatement(sql);
+//
+//            pstmt.executeUpdate();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } finally {
+//            // 사용한 자원 반환
+//            try {
+//                if (pstmt != null) {
+//                    pstmt.close();
+//                }
+//                if (conn != null) {
+//                    conn.close();
+//                }
+//            } catch (SQLException e) {
+//            }
+//        }
+//    }
 }
