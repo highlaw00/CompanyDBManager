@@ -115,7 +115,8 @@ public class EmployeeEditPanel extends javax.swing.JPanel {
             txtMinit.setText(employee.getMinit());
             txtSSN.setText(employee.getSsn());
             txtSSN.setEnabled(false);
-            txtSalary.setText(String.valueOf(employee.getSalary()));
+            String salaryStr = (employee.getSalary() != null) ? String.valueOf(employee.getSalary()) : "";
+            txtSalary.setText(salaryStr);
             addDocumentListenerToResetBorder(txtAddress);
             addDocumentListenerToResetBorder(txtBirth);
             addDocumentListenerToResetBorder(txtFirstName);

@@ -21,6 +21,8 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.GroupLayout;
@@ -29,9 +31,15 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLayer;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.plaf.LayerUI;
@@ -65,7 +73,109 @@ public class FormDashboard extends javax.swing.JPanel {
                 + "focusedBorderColor : rgb(220, 220, 220)");
         HeaderSelectPanel.revalidate();
         HeaderSelectPanel.repaint();
+
+        EmployeeTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        EmployeeDelBtn.setEnabled(false);
+        EmployeeEditBtn.setEnabled(false);
+        setTableListener();
+        setTablePopupMenu();
         setDrawCellEdited();
+    }
+
+    private void setTablePopupMenu() {
+        JPopupMenu contextMenu = new JPopupMenu();
+
+        // 메뉴 아이템 생성 및 액션 리스너 추가
+        JMenuItem selectAll = new JMenuItem("전체 체크");
+        selectAll.addActionListener(e -> {
+            for (int i = 0; i < EmployeeTable.getRowCount(); i++) {
+                EmployeeTable.setValueAt(true, i, 0); // 첫 번째 열이 선택 상태를 나타내는 것으로 가정
+            }
+        });
+        contextMenu.add(selectAll);
+
+        JMenuItem deselectAll = new JMenuItem("전체 체크 해제");
+        deselectAll.addActionListener(e -> {
+            for (int i = 0; i < EmployeeTable.getRowCount(); i++) {
+                EmployeeTable.setValueAt(false, i, 0); // 첫 번째 열이 선택 상태를 나타내는 것으로 가정
+            }
+        });
+        contextMenu.add(deselectAll);
+
+        JMenuItem selectChecked = new JMenuItem("선택 체크");
+        selectChecked.addActionListener(e -> {
+            int[] selectedRows = EmployeeTable.getSelectedRows();
+            for (int selectedRow : selectedRows) {
+                EmployeeTable.setValueAt(true, selectedRow, 0); // 첫 번째 열이 체크 박스라고 가정
+            }
+        });
+        contextMenu.add(selectChecked);
+     
+        JMenuItem deselectChecked = new JMenuItem("선택 체크 해제");
+        deselectChecked.addActionListener(e -> {
+            int[] selectedRows = EmployeeTable.getSelectedRows();
+            for (int selectedRow : selectedRows) {
+                EmployeeTable.setValueAt(false, selectedRow, 0); // 첫 번째 열이 체크 박스라고 가정
+            }
+        });
+        contextMenu.add(deselectChecked);
+
+        EmployeeTable.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                showContextMenu(e);
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                showContextMenu(e);
+            }
+
+            private void showContextMenu(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = EmployeeTable.rowAtPoint(e.getPoint());
+                    int[] selectedRows = EmployeeTable.getSelectedRows();
+
+                    // 현재 선택된 행이 없거나 클릭한 위치의 행이 이미 선택된 상태가 아니라면
+                    if (selectedRows.length <= 1 || !isRowSelected(selectedRows, row)) {
+                        // 행 선택 상태 변경
+                        EmployeeTable.changeSelection(row, 0, false, false);
+                    }
+
+                    // 팝업 메뉴 표시
+                    contextMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+            private boolean isRowSelected(int[] selectedRows, int row) {
+                for (int selectedRow : selectedRows) {
+                    if (selectedRow == row) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        EmployeeTable.setComponentPopupMenu(contextMenu);
+    }
+
+    private void setTableListener() {
+        // 테이블의 selection 모델에 대한 ListSelectionListener 추가
+        EmployeeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                // getValueIsAdjusting()은 이벤트가 한 번만 처리되도록 도와줍니다.
+                if (!e.getValueIsAdjusting()) {
+                    // 선택된 행의 개수 확인
+                    int[] selectedRows = EmployeeTable.getSelectedRows();
+
+                    // 선택된 행이 정확히 하나일 경우 버튼을 활성화
+                    boolean enableButtons = selectedRows.length == 1;
+                    EmployeeDelBtn.setEnabled(enableButtons);
+                    EmployeeEditBtn.setEnabled(enableButtons);
+                }
+            }
+        });
+
     }
 
     private void setDrawCellEdited() {
@@ -714,8 +824,6 @@ public class FormDashboard extends javax.swing.JPanel {
         return RetrieveDBBtn;
     }
 
-    
-    
     public JTable getEmployeeTable() {
         return EmployeeTable;
     }
@@ -723,7 +831,6 @@ public class FormDashboard extends javax.swing.JPanel {
     public List<JCheckBox> getCheckBoxList() {
         return checkBoxList;
     }
-
 
     public JButton getFilterBtn() {
         return filterBtn;

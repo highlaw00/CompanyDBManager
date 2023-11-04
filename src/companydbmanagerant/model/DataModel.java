@@ -156,6 +156,16 @@ public class DataModel {
         return isSuccessful;
     }
     //=====================================================================
+    // 직원 삭제============================================================
+    //=====================================================================
+    public boolean deleteEmployee(Employee selectedEmployee) {
+        return EmployeeDAO.deleteEmployee(selectedEmployee);
+    }
+
+    
+    
+    
+    //=====================================================================
     // 직원 일괄변경============================================================
     //=====================================================================
 //    public boolean modifyEmployeesInfo(List<Employee> beEditedEmployee, String WhatTodo, String value) {

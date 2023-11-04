@@ -9,6 +9,7 @@ import com.formdev.flatlaf.FlatClientProperties;
 import companydbmanagerant.model.DataModel;
 import companydbmanagerant.model.Department.Department;
 import companydbmanagerant.model.Employee.Employee;
+import companydbmanagerant.model.Employee.EmployeeDAO;
 import companydbmanagerant.model.LoginFormDataDTO;
 import companydbmanagerant.model.TableModel.EmployeeTableModel;
 
@@ -201,17 +202,18 @@ public class DataController {
         //Employee 정보 갱신 관련 작성 
 
         Map<String, String> AddEmployee = view.getAddPanelFieldTexts();
-        
+
         //모델단에서 트렌젝션 실행 
         boolean updateSuccess = model.addEmployeeInfo(AddEmployee);
 
         // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
         if (updateSuccess) {
             //성공시 model단에서 해야할거 호출(ex, 테이블 다시불러오기)
-            
+
+            retrieveDB();
             //성공시 View단에서 해야할거 호출(ex 성공알림, modal창 닫기)            
             view.whenEmployeeAddingSuccess();
-           
+
         } else {
             //실패시 View단에서 해야할거 호출(ex 실패알림 ) 
             view.whenEmployeeAddingFailed();
@@ -231,20 +233,43 @@ public class DataController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            controller.openDelDialog(); // Controller의 메소드를 호출합니다.
+            controller.executeDelete();
         }
     }
 
-    public void openDelDialog() {
+    public void executeDelete() {
+        //Employee 정보 갱신 관련 작성 
         int selectedRow = view.getSelectedRow(); // View를 통해 선택된 행 가져오기
         if (selectedRow >= 0) {
-            Employee selectedEmployee = model.getEmployeeAt(selectedRow);
+            model.refreshSelectedEmployee(selectedRow);
+            Employee selectedEmployee = model.getSelectedEmployee();
             if (selectedEmployee != null) {
+                boolean deleteSuccess = EmployeeDAO.deleteEmployee(selectedEmployee);
+                if (deleteSuccess) {
+                    // 업데이트 성공
 
-                view.showDelDialog(selectedEmployee); // View를 통해 대화상자 표시
+                    retrieveDB();//테이블 갱신
+                    view.notifyUpdateSuccess("데이터 삭제 완료");
+                } else {
+                    // 업데이트 실패
+                    view.notifyUpdateFailed("데이터 삭제 실패");
+                }
+
             }
+
         }
+
     }
+//    public void openDelDialog() {
+//        int selectedRow = view.getSelectedRow(); // View를 통해 선택된 행 가져오기
+//        if (selectedRow >= 0) {
+//            Employee selectedEmployee = model.getEmployeeAt(selectedRow);
+//            if (selectedEmployee != null) {
+//
+//                view.showDelDialog(selectedEmployee); // View를 통해 대화상자 표시
+//            }
+//        }
+//    }
 
     // ================================================
     // EmployeeEdit 버튼 관련  (CONTROLL 단)
@@ -266,6 +291,7 @@ public class DataController {
 
     public void executeOpenEditDialog() {
         int selectedRow = view.getSelectedRow(); // View를 통해 선택된 행 가져오기
+        System.out.println(selectedRow);
         if (selectedRow >= 0) {
             model.refreshSelectedEmployee(selectedRow);
             Employee selectedEmployee = model.getSelectedEmployee();
@@ -303,21 +329,11 @@ public class DataController {
         // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
         if (updateSuccess) {
             // 업데이트 성공
-            System.out.println("데이터베이스 업데이트 성공!");
+            view.notifyUpdateSuccess("데이터베이스 업데이트 성공!");
+            System.out.println("");
         } else {
             // 업데이트 실패
-            System.out.println("데이터베이스 업데이트 실패.");
-        }
-    }
-
-    // ================================================
-    // Employee Delete 버튼 관련  (CONTROLL 단)
-    // ================================================
-    class addEmployeeDelBtnListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-
+            view.notifyUpdateFailed("데이터베이스 업데이트 실패");
         }
     }
 
