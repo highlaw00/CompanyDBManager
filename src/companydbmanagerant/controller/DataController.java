@@ -33,6 +33,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -165,11 +166,11 @@ public class DataController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            controller.executeAddDialog(); // Controller의 메소드를 호출합니다.
+            controller.openAddDialog(); // Controller의 메소드를 호출합니다.
         }
     }
 
-    public void executeAddDialog() {
+    public void openAddDialog() {
 
         model.loadDepartmentsData();
         List<Department> departments = model.getDepartments();
@@ -177,25 +178,39 @@ public class DataController {
         String query = SQLQueryBuilder.createFindSSNsQuery();
         List<String> SSNs = model.findNotSubordinates(query);
 
-        view.showAddDialog(departments, SSNs);
+        view.showAddDialog(departments, SSNs,new ExecuteAddButtonListener(this));
 
     }
+    // 2. DB 변경 수행 관련 정의
+    class ExecuteAddButtonListener implements ActionListener {
 
-    class addEmployeeAddBtnListener implements ActionListener {
+        private DataController controller;
+
+        public ExecuteAddButtonListener(DataController controller) {
+            this.controller = controller;
+        }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
-            model.loadDepartmentsData();
-            List<Department> departments = model.getDepartments();
-
-            String query = SQLQueryBuilder.createFindSSNsQuery();
-            List<String> SSNs = model.findNotSubordinates(query);
-            Modal modal = new Modal(view, new EmployeeAddPanel(departments, SSNs), "exitBtn", true, null);
-
+            controller.executeAdd(); // Controller의 메소드를 호출합니다.
         }
     }
 
+    public void executeAdd() {
+        //Employee 정보 갱신 관련 작성 
+
+        Map<String, String> EditedEmployee = view.getEditPanelFieldTexts();
+        boolean updateSuccess = model.addEmployeeInfo(EditedEmployee);
+
+                // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
+                if (updateSuccess) {
+                    // 업데이트 성공
+                    System.out.println("데이터베이스 업데이트 성공!");
+                } else {
+                    // 업데이트 실패
+                    System.out.println("데이터베이스 업데이트 실패.");
+                }
+    }
     // ================================================
     // EmployeeDel 버튼 관련  (CONTROLL 단)
     // ================================================
@@ -209,11 +224,11 @@ public class DataController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            controller.executeDelDialog(); // Controller의 메소드를 호출합니다.
+            controller.openDelDialog(); // Controller의 메소드를 호출합니다.
         }
     }
 
-    public void executeDelDialog() {
+    public void openDelDialog() {
         int selectedRow = view.getSelectedRow(); // View를 통해 선택된 행 가져오기
         if (selectedRow >= 0) {
             Employee selectedEmployee = model.getEmployeeAt(selectedRow);
@@ -223,10 +238,11 @@ public class DataController {
             }
         }
     }
+
     // ================================================
     // EmployeeEdit 버튼 관련  (CONTROLL 단)
     // ================================================
-
+    // 1. 버튼 여는 파트
     class EditButtonListener implements ActionListener {
 
         private DataController controller;
@@ -237,22 +253,54 @@ public class DataController {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            controller.executeEditDialog(); // Controller의 메소드를 호출합니다.
+            controller.executeOpenEditDialog(); // Controller의 메소드를 호출합니다.
         }
     }
 
-    public void executeEditDialog() {
+    public void executeOpenEditDialog() {
         int selectedRow = view.getSelectedRow(); // View를 통해 선택된 행 가져오기
         if (selectedRow >= 0) {
-            Employee selectedEmployee = model.getEmployeeAt(selectedRow);
+            model.refreshSelectedEmployee(selectedRow);
+            Employee selectedEmployee = model.getSelectedEmployee();
             if (selectedEmployee != null) {
                 model.loadDepartmentsData(); // Model을 통해 데이터 로딩
                 List<Department> departments = model.getDepartments();
                 String query = SQLQueryBuilder.createFindNotSubordinatesQuery(selectedEmployee.getSsn());
                 List<String> notSubordinates = model.findNotSubordinates(query);
-                view.showEditDialog(selectedEmployee, departments, notSubordinates); // View를 통해 대화상자 표시
+                view.showEditDialog(selectedEmployee, departments, notSubordinates, new ExecuteEditButtonListener(this)); // View를 통해 대화상자 표시
             }
         }
+    }
+
+    // 2. DB 변경 수행 관련 정의
+    class ExecuteEditButtonListener implements ActionListener {
+
+        private DataController controller;
+
+        public ExecuteEditButtonListener(DataController controller) {
+            this.controller = controller;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            controller.executeEdit(); // Controller의 메소드를 호출합니다.
+        }
+    }
+
+    public void executeEdit() {
+        //Employee 정보 갱신 관련 작성 
+        Employee previousEmployee = model.getSelectedEmployee();
+        Map<String, String> EditedEmployee = view.getEditPanelFieldTexts();
+        boolean updateSuccess = model.updateEmployeeInfo(previousEmployee,EditedEmployee);
+
+                // 데이터베이스 업데이트 결과를 확인하고 적절한 처리를 수행할 수 있습니다.
+                if (updateSuccess) {
+                    // 업데이트 성공
+                    System.out.println("데이터베이스 업데이트 성공!");
+                } else {
+                    // 업데이트 실패
+                    System.out.println("데이터베이스 업데이트 실패.");
+                }
     }
 
     // ================================================

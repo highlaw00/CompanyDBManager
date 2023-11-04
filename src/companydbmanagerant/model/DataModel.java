@@ -18,6 +18,7 @@ import companydbmanagerant.model.TableModel.EmployeeTableModel;
 import companydbmanagerant.model.WorksOn.WorksOn;
 import companydbmanagerant.model.WorksOn.WorksOnDAO;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -34,7 +35,7 @@ public class DataModel {
     private List<DeptLocations> deptlocationss;
     private List<Project> projects;
     private List<Dependent> dependents;
-
+    private Employee selectedEmployee;
     // 테이블모델
     EmployeeTableModel employeeTableModel;
 
@@ -91,17 +92,54 @@ public class DataModel {
     }
 
     //======================================================================
+    // Edit Employee & ADD Employee 관련 (MODEL 단)
+    //======================================================================   
+    public void refreshSelectedEmployee(int selectedRow) {
+        selectedEmployee = getEmployeeAt(selectedRow);
+    }
+
+    public Employee getSelectedEmployee() {
+        return selectedEmployee;
+    }
+       //=====================================================================
+       // 직원 수정============================================================
+    public boolean updateEmployeeInfo(Employee previousEmployee, Map<String, String> EditedEmployee) {
+        //데이터 비교하여 변경할 리스트를 만듬
+        System.out.println("데이터 비교하여 취합 완료");
+        
+        // 쿼리빌더에서 쿼리생성
+        System.out.println("쿼리빌더에서 생성완료");
+
+        // 트렌젝션
+        System.out.println("트렌젝션");
+
+        return true;
+    }
+
+    // 직원 추가
+    public boolean addEmployeeInfo(Map<String, String> EditedEmployee) {
+        //DB에 접속하여 문제사항이 있는지 체크 
+         System.out.println("쿼리빌더에서 생성완료");
+         
+        // 쿼리빌더에서 쿼리생성
+        System.out.println("쿼리빌더에서 생성완료");
+
+        // 트렌젝션
+        System.out.println("트렌젝션");
+
+        return true;
+    }
+
+    //======================================================================
     // 로그인 관련 관련 (MODEL 단)
     //======================================================================   
-
     public boolean tryLogin(LoginFormDataDTO logindata) {
         return DatabaseUtils.try_login(logindata);
     }
-    
+
     //======================================================================
     //TableModel 관련 (MODEL 단)
     //======================================================================   
-
     public void buildEmployeeTableModel(String condition) {
         loadEmployeesDataFittered(condition);
         employeeTableModel = new EmployeeTableModel(employees);
@@ -121,9 +159,6 @@ public class DataModel {
     //======================================================================
     // 아래는 모두 JDBC DAO 관련 코드
     //======================================================================
-    
-    
-    
     //======================================================================
     //EMPLOYEE==============================================================
     //======================================================================   

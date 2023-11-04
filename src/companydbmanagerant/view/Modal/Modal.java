@@ -16,6 +16,7 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -32,16 +33,24 @@ public class Modal {
     private final JComponent glassPane;
     private final JFrame mainFrame;
     private final JComponent modalPanel;
-    private final String exitBtnName;
-    private final boolean setBtnCircle;
+//    private final String exitBtnName;
+//    private final boolean setBtnCircle;
+
+    Map<String, ActionListener> buttonListeners;
+
     ActionListener additionalAction;
-    public Modal(JFrame frame, JComponent modalPane, String exitButtonName, boolean setBtnCircle,ActionListener additionalAction) {
+
+    public Modal(JFrame frame, JComponent modalPane, Map<String, ActionListener> buttonListeners) {
         this.mainFrame = frame;
         this.modalPanel = modalPane;
-        this.exitBtnName = exitButtonName;
+
+        this.buttonListeners = buttonListeners;
+
         this.glassPane = createGlassPane();
-        this.additionalAction = additionalAction;
-        this.setBtnCircle = setBtnCircle;
+
+//                this.exitBtnName = exitButtonName;
+//        this.additionalAction = additionalAction;
+//        this.setBtnCircle = setBtnCircle;
         initialize();
     }
 
@@ -59,7 +68,7 @@ public class Modal {
     private void initialize() {
         setupGlassPane();
         setupModalPanel();
-        setupExitButton(additionalAction);
+        setupActionListners();
         preventUnderlyingInteractions();
 
         mainFrame.setGlassPane(glassPane);
@@ -95,23 +104,72 @@ public class Modal {
                 + "[dark]border: 16,16,16,16,tint(@background,10%),,8");
     }
 
-private void setupExitButton(ActionListener additionalAction) {
-    JButton exitButton = findButtonByName(modalPanel, exitBtnName);
-    if (exitButton != null) {
-        // 기존의 ActionListener를 추가
-        exitButton.addActionListener(e -> glassPane.setVisible(false));
+    private void setupActionListners() {
+        for (Map.Entry<String, ActionListener> entry : buttonListeners.entrySet()) {
+            String buttonName = entry.getKey();
+            ActionListener listener = entry.getValue();
 
-        // 추가적인 ActionListener를 등록
-        if (additionalAction != null) {
-            exitButton.addActionListener(additionalAction);
-        }
+            if ("exitBtn".equalsIgnoreCase(buttonName) || "exitBtnCircle".equalsIgnoreCase(buttonName)) {
+                setupExitButtonActionListener(buttonName, listener);
+            } else {
+                setupActionListener(buttonName, listener);
+            }
 
-        // 버튼을 원형으로 만드는 스타일 적용
-        if (setBtnCircle) {
-            exitButton.putClientProperty(FlatClientProperties.STYLE, "arc: 40;");
         }
     }
-}
+
+    private void setupActionListener(String buttonName, ActionListener listener) {
+        if (listener == null) {
+            return;
+        }
+        JButton findedButton = findButtonByName(modalPanel, buttonName);
+
+        if (findedButton != null) {
+            findedButton.addActionListener(listener);
+        }
+    }
+
+    private void setupExitButtonActionListener(String buttonName, ActionListener listener) {
+        JButton findedButton = findButtonByName(modalPanel, buttonName);
+        if (findedButton != null) {
+            findedButton.addActionListener(e -> glassPane.setVisible(false));
+
+            if (listener != null) {
+                findedButton.addActionListener(listener);
+            }
+
+            // 버튼을 원형으로 만드는 스타일 적용
+            if ("exitBtnCircle".equalsIgnoreCase(buttonName)) {
+                findedButton.putClientProperty(FlatClientProperties.STYLE, "arc: 40;");
+            }
+        }
+    }
+
+    public JFrame getMainFrame() {
+        return mainFrame;
+    }
+
+    public JComponent getModalPanel() {
+        return modalPanel;
+    }
+
+//    private void setupExitButton(ActionListener additionalAction) {
+//        buttonListeners JButton exitButton = findButtonByName(modalPanel, exitBtnName);
+//        if (exitButton != null) {
+//            // 기존의 ActionListener를 추가
+//            exitButton.addActionListener(e -> glassPane.setVisible(false));
+//
+//            // 추가적인 ActionListener를 등록
+//            if (additionalAction != null) {
+//                exitButton.addActionListener(additionalAction);
+//            }
+//
+//            // 버튼을 원형으로 만드는 스타일 적용
+//            if (setBtnCircle) {
+//                exitButton.putClientProperty(FlatClientProperties.STYLE, "arc: 40;");
+//            }
+//        }
+//    }
     private void preventUnderlyingInteractions() {
         glassPane.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override

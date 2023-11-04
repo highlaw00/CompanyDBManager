@@ -44,9 +44,10 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
         this.Employees = Employees;
         this.employee = employee;
         this.departments = departments;
-        jButton1.setName("exitBtn");
+        jButton1.setName("exitBtnCircle");
         // TextField와 ComboBox에 Employee 객체의 값을 설정
         jButton2.setEnabled(false);
+        jButton2.setName("executeBtn");
         setDepartmentCombo();
         setSuperSSNCombo();
         setEmployeeValues();
@@ -67,29 +68,28 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
     }
 
     private void setEmployeeValues() {
-            //플레이스홀더 만들어야함
-            txtAddress.setText("");
-            txtBirth.setText("");
-            txtFirstName.setText("");
-            txtLastName.setText("");
-            txtMinit.setText("");
-            txtSSN.setText("");
-            txtSalary.setText("");
-            addDocumentListenerToResetBorder(txtAddress);
-            addDocumentListenerToResetBorder(txtBirth);
-            addDocumentListenerToResetBorder(txtFirstName);
-            addDocumentListenerToResetBorder(txtLastName);
-            addDocumentListenerToResetBorder(txtMinit);
-            addDocumentListenerToResetBorder(txtSSN);
-            addDocumentListenerToResetBorder(txtSalary);
-            addItemListenerToResetBorder(comboDname);
-            addItemListenerToResetBorder(comboSEX);
-            addItemListenerToResetBorder(comboSuperSSN);
-            // JComboBox의 아이템 중에서 employee의 값을 선택합니다.
+        //플레이스홀더 만들어야함
+        txtAddress.setText("");
+        txtBirth.setText("");
+        txtFirstName.setText("");
+        txtLastName.setText("");
+        txtMinit.setText("");
+        txtSSN.setText("");
+        txtSalary.setText("");
+        addDocumentListenerToResetBorder(txtAddress);
+        addDocumentListenerToResetBorder(txtBirth);
+        addDocumentListenerToResetBorder(txtFirstName);
+        addDocumentListenerToResetBorder(txtLastName);
+        addDocumentListenerToResetBorder(txtMinit);
+        addDocumentListenerToResetBorder(txtSSN);
+        addDocumentListenerToResetBorder(txtSalary);
+        addItemListenerToResetBorder(comboDname);
+        addItemListenerToResetBorder(comboSEX);
+        addItemListenerToResetBorder(comboSuperSSN);
+        // JComboBox의 아이템 중에서 employee의 값을 선택합니다.
 //            comboDname.setSelectedItem(employee.getDname());
 //            comboSEX.setSelectedItem(employee.getSex());
 //            comboSuperSSN.setSelectedItem(employee.getSuperSsn());
-        
 
     }
 
@@ -120,7 +120,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     resetBorderToDefault(comboBox);
-                     jButton2.setEnabled(false);
+                    jButton2.setEnabled(false);
                 }
             }
         });
