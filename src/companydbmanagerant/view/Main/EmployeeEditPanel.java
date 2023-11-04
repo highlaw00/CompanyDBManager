@@ -43,12 +43,53 @@ public class EmployeeEditPanel extends javax.swing.JPanel {
         this.notSubordinates = notSubordinates;
         this.employee = employee;
         this.departments = departments;
-        jButton1.setName("exitBtn");
+        jButton1.setName("exitBtnCircle");
         // TextField와 ComboBox에 Employee 객체의 값을 설정
         jButton2.setEnabled(false);
+        jButton2.setName("executeBtn");
         setDepartmentCombo();
         setSuperSSNCombo();
         setEmployeeValues();
+    }
+
+    public JComboBox<String> getComboDname() {
+        return comboDname;
+    }
+
+    public JComboBox<String> getComboSEX() {
+        return comboSEX;
+    }
+
+    public JComboBox<String> getComboSuperSSN() {
+        return comboSuperSSN;
+    }
+
+    public JTextField getTxtAddress() {
+        return txtAddress;
+    }
+
+    public JTextField getTxtBirth() {
+        return txtBirth;
+    }
+
+    public JTextField getTxtFirstName() {
+        return txtFirstName;
+    }
+
+    public JTextField getTxtLastName() {
+        return txtLastName;
+    }
+
+    public JTextField getTxtMinit() {
+        return txtMinit;
+    }
+
+    public JTextField getTxtSSN() {
+        return txtSSN;
+    }
+
+    public JTextField getTxtSalary() {
+        return txtSalary;
     }
 
     private void setDepartmentCombo() {
