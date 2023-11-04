@@ -112,7 +112,21 @@ public class EmployeeTableModel extends AbstractTableModel {
             case "Sex":
                 return employee.getSex();
             case "Salary":
-                return employee.getSalary();  // 숫자 형식이므로 필요에 따라 문자열로 변환할 수 있습니다.
+
+                Double salary = employee.getSalary();
+
+                if (salary != null) {
+                    try {
+                        return salary.toString();
+                    } catch (NumberFormatException e) {
+                        // 숫자 형식으로 변환할 수 없을 때의 예외 처리, salary는 이미 null로 초기화됨.
+                    }
+
+                } else {
+                    return "";
+                }
+
+                return employee.getSalary().toString();  // 숫자 형식이므로 필요에 따라 문자열로 변환할 수 있습니다.
             case "Super SSN":
                 return employee.getSuperSsn();
             case "Dname":
@@ -235,9 +249,9 @@ public class EmployeeTableModel extends AbstractTableModel {
     }
 
     public Employee getSelectedEmployee(int selectedRow) {
-    if (selectedRow >= 0 && selectedRow < employees.size()) {
-        return employees.get(selectedRow);
+        if (selectedRow >= 0 && selectedRow < employees.size()) {
+            return employees.get(selectedRow);
+        }
+        return null;  // 선택된 행이 없거나 범위를 벗어난 경우 null을 반환합니다.
     }
-    return null;  // 선택된 행이 없거나 범위를 벗어난 경우 null을 반환합니다.
-}
 }

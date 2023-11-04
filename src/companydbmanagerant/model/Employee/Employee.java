@@ -21,7 +21,7 @@ public class Employee {
     private Date bdate;
     private String address;
     private String sex;
-    private double salary;
+    private Double salary;
     private String superSsn; // 상사의 SSN
     private int dno; // 부서 번호
     private Date created;
@@ -30,7 +30,7 @@ public class Employee {
     private boolean isSelected;  // 체크 박스 상태를 저장하기 위한 필드
 
     // 생성자
-    public Employee(String fname, String minit, String lname, String ssn, Date bdate, String address, String sex, double salary, String superSsn, int dno, Date created, Date modified, String Dname) {
+    public Employee(String fname, String minit, String lname, String ssn, Date bdate, String address, String sex, Double salary, String superSsn, int dno, Date created, Date modified, String Dname) {
         this.fname = fname;
         this.minit = minit;
         this.lname = lname;
@@ -46,6 +46,22 @@ public class Employee {
         this.dname = Dname;
     }
 
+    
+        public Employee(String fname, String minit, String lname, String ssn, Date bdate, String address, String sex, Double salary, String superSsn, int dno, String Dname) {
+        this.fname = fname;
+        this.minit = minit;
+        this.lname = lname;
+        this.ssn = ssn;
+        this.bdate = bdate;
+        this.address = address;
+        this.sex = sex;
+        this.salary = salary;
+        this.superSsn = superSsn;
+        this.dno = dno;
+        this.created = null;
+        this.modified = null;
+        this.dname = Dname;
+    }
     // isSelected 필드에 대한 getter와 setter도 추가해주세요.
     public boolean isSelected() {
         return isSelected;
@@ -122,11 +138,11 @@ public class Employee {
         this.sex = sex;
     }
 
-    public double getSalary() {
+    public Double getSalary() {
         return salary;
     }
 
-    public void setSalary(double salary) {
+    public void setSalary(Double salary) {
         this.salary = salary;
     }
 
