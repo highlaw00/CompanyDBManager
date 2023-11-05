@@ -4,6 +4,11 @@
  */
 package companydbmanagerant.model;
 
+import companydbmanagerant.model.Employee.Employee;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
+
 /**
  *
  * @author PHC
@@ -14,8 +19,7 @@ public class SQLQueryBuilder {
         return "SELECT E.Ssn " +
             "FROM EMPLOYEE E " ;        
     }
-        
-        
+
     public static String createFindNotSubordinatesQuery(String Ssn) {
         return "WITH RECURSIVE Subordinates AS (" +
             "    SELECT E.Ssn " +
@@ -42,7 +46,7 @@ public class SQLQueryBuilder {
     }
 
     public static String createEmpolyeeWhereClause(String condition1, String condition2, String searchCombo3Text, String searchText) {
-        // 기본적으로 WHERE 절을 시작합니다. 빈 문자열이 반환되면 WHERE 절이 쿼리에서 제거되어야 합니다.
+        // 기본적으로 WHERE 절을 시작하여 빈 문자열이 반환되면 WHERE 절이 쿼리에서 제거해야함
         StringBuilder condition = new StringBuilder("WHERE ");
 
         String singleQuote = "'";
@@ -87,16 +91,12 @@ public class SQLQueryBuilder {
                     break;
                 default:
                     // '전체'나 알 수 없는 값이 들어오면, WHERE 절 없이 처리합니다.
-                    return ""; // 이 경우, 후속 처리를 중단하고 여기서 반환합니다.
+                    return "";
             }
         }
 
-        // 두 번째 조건을 기반으로 필터를 추가합니다. condition2 값에 따라 다른 연산자를 사용합니다.
+
         if (condition2 != null && !condition2.isEmpty()) {
-//        if (!condition.toString().endsWith("WHERE ")) {
-//            // 첫 번째 조건이 이미 설정되어 있는 경우, AND로 조건을 연결합니다.
-//            condition.append(" AND ");
-//        }
             if (searchText.equals("")) {
                 switch (condition2) {
                     case "=":
@@ -105,7 +105,6 @@ public class SQLQueryBuilder {
                     case "!=":
                         condition.append("IS NOT NULL");
                         break;
-                    // 추가적인 조건들...
                     default:
                         // 알 수 없는 연산자가 들어오면, 조건을 추가하지 않고 WHERE절없이 처리
                         condition = new StringBuilder("");
@@ -113,7 +112,7 @@ public class SQLQueryBuilder {
                 }
                 return condition.toString();
             }
-            // 여기에서는 condition2의 값을 기반으로 다양한 SQL 연산자를 처리할 수 있습니다.
+          
             switch (condition2) {
                 case "=":
                     condition.append("= ").append(singleQuote).append(searchText).append(singleQuote);
@@ -133,7 +132,6 @@ public class SQLQueryBuilder {
                 case "<=":
                     condition.append("<= ").append(singleQuote).append(searchText).append(singleQuote);
                     break;
-                // 추가적인 조건들...
                 default:
                     // 알 수 없는 연산자가 들어오면, 조건을 추가하지 않고 WHERE절없이 처리
                     condition = new StringBuilder("");

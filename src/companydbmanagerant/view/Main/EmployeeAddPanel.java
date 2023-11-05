@@ -134,10 +134,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
         addItemListenerToResetBorder(comboDname);
         addItemListenerToResetBorder(comboSEX);
         addItemListenerToResetBorder(comboSuperSSN);
-        // JComboBox의 아이템 중에서 employee의 값을 선택합니다.
-//            comboDname.setSelectedItem(employee.getDname());
-//            comboSEX.setSelectedItem(employee.getSex());
-//            comboSuperSSN.setSelectedItem(employee.getSuperSsn());
+
 
     }
 
@@ -270,7 +267,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
         }
 
         // Salary validation
-        if (!txtSalary.getText().matches("^-?\\d*(\\.\\d{1,2})?$")) {
+        if (!txtSalary.getText().matches("^\\d*(\\.\\d{1,2})?$")) {
             Notifications.getInstance().show(Notifications.Type.ERROR, 2000, "Salary must be a number with up to two decimal places");
             setBorderToError(txtSalary);
             isValidate = false;
@@ -337,7 +334,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
 
         txtSalary.setText("jTextField1");
 
-        jButton2.setText("DB 갱신");
+        jButton2.setText("직원 정보 추가");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -380,7 +377,7 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
         comboSuperSSN.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel7.setFont(new java.awt.Font("맑은 고딕", 0, 14)); // NOI18N
-        jLabel7.setText("직원 정보 수정 ");
+        jLabel7.setText("직원 정보 추가 ");
 
         jButton3.setText("무결성 검사");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -490,7 +487,6 @@ public class EmployeeAddPanel extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel10)
                         .addGap(38, 38, 38)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(jLabel9))

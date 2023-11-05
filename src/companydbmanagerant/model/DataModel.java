@@ -15,14 +15,17 @@ import companydbmanagerant.model.DeptLocations.DeptLocationsDAO;
 import companydbmanagerant.model.Employee.EmployeeUtils;
 import companydbmanagerant.model.Project.Project;
 import companydbmanagerant.model.Project.ProjectDAO;
+import companydbmanagerant.model.TableModel.AllEditTableModel;
 import companydbmanagerant.model.TableModel.EmployeeTableModel;
 import companydbmanagerant.model.WorksOn.WorksOn;
 import companydbmanagerant.model.WorksOn.WorksOnDAO;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import raven.toast.Notifications;
 
 /**
  *
@@ -40,8 +43,11 @@ public class DataModel {
     private List<Project> projects;
     private List<Dependent> dependents;
     private Employee selectedEmployee;
+    private Employee editingEmployee;
+    List<Employee> checkedEmployees;
     // 테이블모델
     EmployeeTableModel employeeTableModel;
+    AllEditTableModel allEditTableModel;
 
     private void TestCode() {
         // 테스트코드: EMPLOYEE
@@ -88,7 +94,7 @@ public class DataModel {
     }
 
     public DataModel() {
-        // 모델 객체가 생성될 때 데이터를 로드합니다.
+        // 모델 객체가 생성될 때 데이터를 로드.
         //loadEmployeesData();
         //테스트코드
         //TestCode();
@@ -105,36 +111,69 @@ public class DataModel {
     public Employee getSelectedEmployee() {
         return selectedEmployee;
     }
+
     //=====================================================================
     // 직원 수정============================================================
     //=====================================================================
+    public void refreshSelectedEmployee() {
+        selectedEmployee = editingEmployee;
+    }
 
-    public boolean updateEmployeeInfo(Employee previousEmployee, Map<String, String> EditedEmployee) {
-        //데이터 비교하여 변경할 리스트를 만듬
-        System.out.println("데이터 비교하여 취합 완료");
+    public boolean updateEmployeeInfo(Map<String, String> EditedEmployee) {
+        boolean isSuccessful = false;
+        try {
+            //previousEmployee
+            //전달할 객체 생성
+            Employee employee = EmployeeUtils.createEmployeeFromMap(EditedEmployee);
+            editingEmployee = employee;
+            // Dname to Dno
+            String key = "Dname";
+            if (EditedEmployee.containsKey("Dname")) { // 키가 존재하는지 먼저 확인
+                String dname = EditedEmployee.get(key);
+                List<String> dnos = DepartmentDAO.findDnoByDname(dname);
+                if (dnos.size() == 1) {
+                    String dnoStr = dnos.get(0);
+                    int dno = Integer.parseInt(dnoStr);
+                    employee.setDno(dno);
 
-        // 쿼리빌더에서 쿼리생성
-        System.out.println("쿼리빌더에서 생성완료");
+                    Map<String, String> diff = EmployeeUtils.findDiffEmployeeInfo(selectedEmployee, employee);
+                    System.out.println(diff.toString());
+                    //쿼리 빌딩
 
-        // 트렌젝션
-        System.out.println("트렌젝션");
+                    //트렌젝션 수행 
+                    if (!diff.isEmpty()) {
+                        isSuccessful = EmployeeDAO.updateEmployee(selectedEmployee.getSsn(), diff);
+                    } else {
+                        Notifications.getInstance().show(Notifications.Type.ERROR, "변경된 사항이 없습니다.");
 
-        return true;
+                        return false;
+                    }
+                }
+            }
+
+        } catch (ParseException ex) {
+            Logger.getLogger(DataModel.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return isSuccessful;
     }
 
     //=====================================================================
     // 직원 추가============================================================
     //=====================================================================
-    public boolean addEmployeeInfo(Map<String, String> EditedEmployee) {
+    public boolean addEmployeeInfo(Map<String, String> AddEmployee) {
         boolean isSuccessful = false;
         try {
             //전달할 객체 생성
-            Employee employee = EmployeeUtils.createEmployeeFromMap(EditedEmployee);
-
+            Employee employee = EmployeeUtils.createEmployeeFromMap(AddEmployee);
+            System.out.println(employee.toString());
             // Dname to Dno
             String key = "Dname";
-            if (EditedEmployee.containsKey("Dname")) { // 키가 존재하는지 먼저 확인
-                String dname = EditedEmployee.get(key);
+            if (AddEmployee.containsKey("Dname")) { // 키가 존재하는지 먼저 확인
+                String dname = AddEmployee.get(key);
                 List<String> dnos = DepartmentDAO.findDnoByDname(dname);
                 if (dnos.size() == 1) {
                     String dnoStr = dnos.get(0);
@@ -155,6 +194,7 @@ public class DataModel {
 
         return isSuccessful;
     }
+
     //=====================================================================
     // 직원 삭제============================================================
     //=====================================================================
@@ -162,12 +202,44 @@ public class DataModel {
         return EmployeeDAO.deleteEmployee(selectedEmployee);
     }
 
-    
-    
-    
     //=====================================================================
-    // 직원 일괄변경============================================================
+    // 테이블에서 조건문으로 직원 찾기==================================================
+    //=====================================================================  
+    public void checkSelectedByCondition(Map<String, String> condition) {
+        employeeTableModel.selectedByCondition(condition);
+    }
+
     //=====================================================================
+    // 직원 일괄변경========================================================
+    //=====================================================================
+    public List<Employee> getCheckedEmployees() {
+        return checkedEmployees;
+    }
+
+    //체크된 모든사람의 부하직원 또는 부하직원의부하직원의.. 가 아닌 직원의 SSN 찾기
+    public List<String> findNotAllSubordinates(List<Employee> checkedEmployees) {
+        return EmployeeDAO.findNotAllSubordinates(checkedEmployees);
+    }
+
+    public boolean editAllSelectedEmloyee() {
+        AllEditTableModel md = allEditTableModel;
+        if (md.getRowCount() <= 0) {
+            return false;
+        }
+        String columnName = md.getColumnName(2);
+        Map<String, String> datas = new HashMap<>();
+        
+        for (int i = 0; i < md.getRowCount(); i++) {
+            String ssn = (String)md.getValueAt(i, 1);
+            String value = (String)md.getValueAt(i, 3);
+            datas.put(ssn, value);
+        }
+        
+        boolean isSuccess = EmployeeDAO.editAllSelectedEmloyee(columnName,datas);
+
+        return isSuccess;
+    }
+
 //    public boolean modifyEmployeesInfo(List<Employee> beEditedEmployee, String WhatTodo, String value) {
 //
 //        
@@ -188,7 +260,6 @@ public class DataModel {
 ////        
 ////        return true;
 //    }
-
     //======================================================================
     // 로그인 관련 관련 (MODEL 단)
     //======================================================================   
@@ -199,9 +270,14 @@ public class DataModel {
     //======================================================================
     //TableModel 관련 (MODEL 단)
     //======================================================================   
-    public void buildEmployeeTableModel(String condition) {
+    public boolean buildEmployeeTableModel(String condition) {
         loadEmployeesDataFittered(condition);
         employeeTableModel = new EmployeeTableModel(employees);
+
+        if (employees.isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
     public EmployeeTableModel getEmployeeTableModel() {
@@ -213,6 +289,15 @@ public class DataModel {
             return employeeTableModel.getSelectedEmployee(selectedRow);
         }
         return null;
+    }
+
+    public void buildTableModelByCheckedEmployees() {
+        checkedEmployees = employeeTableModel.getCheckedEmployees();
+        allEditTableModel = new AllEditTableModel(checkedEmployees);
+    }
+
+    public AllEditTableModel getAllEditTableModel() {
+        return allEditTableModel;
     }
 
     //======================================================================
@@ -231,20 +316,15 @@ public class DataModel {
         this.employees = EmployeeDAO.loadData();  // 데이터베이스에서 직원 정보 로드
     }
 
-    // 외부(예: 컨트롤러)에서 이 메서드를 호출하여 모델의 데이터를 가져올 수 있습니다.
     public void loadEmployeesDataFittered(String condition) {
         this.employees = EmployeeDAO.loadDataFittered(condition);  // 데이터베이스에서 직원 정보 로드
     }
 
-    // 외부(예: 컨트롤러)에서 이 메서드를 호출하여 모델의 데이터를 가져올 수 있습니다.
     public List<Employee> getEmployees() {
         return employees;
     }
 
-    //    // 데이터 변경이 있을 때 다시 로드하거나 업데이트할 수 있는 메서드를 제공합니다.
-    //    public void reloadEmployeesData() {
-    //        loadEmployeesData();
-    //    }
+
     //======================================================================
     //DEPARTMENT==============================================================
     //======================================================================   
@@ -260,7 +340,6 @@ public class DataModel {
         this.departments = DepartmentDAO.loadDataFittered(condition);  // 데이터베이스에서 부서 정보 로드
     }
 
-    // 외부(예: 컨트롤러)에서 이 메서드를 호출하여 모델의 데이터를 가져올 수 있습니다.
     public List<Department> getDepartments() {
         return departments;
     }
@@ -276,7 +355,6 @@ public class DataModel {
         this.dependents = DependentDAO.loadDataFittered(condition);   // 데이터베이스에서 DeptLocations 정보 로드
     }
 
-    // 외부(예: 컨트롤러)에서 이 메서드를 호출하여 모델의 데이터를 가져올 수 있습니다.
     public List<Dependent> getloadDepentdents() {
         return dependents;
     }
@@ -292,7 +370,6 @@ public class DataModel {
         this.worksons = WorksOnDAO.loadDataFittered(condition);  // 데이터베이스에서 WORKS_ON 정보 로드
     }
 
-    // 외부(예: 컨트롤러)에서 이 메서드를 호출하여 모델의 데이터를 가져올 수 있습니다.
     public List<WorksOn> getWorksOns() {
         return worksons;
     }
@@ -308,7 +385,7 @@ public class DataModel {
         this.deptlocationss = DeptLocationsDAO.loadDataFittered(condition);   // 데이터베이스에서 DeptLocations 정보 로드
     }
 
-    // 외부(예: 컨트롤러)에서 이 메서드를 호출하여 모델의 데이터를 가져올 수 있습니다.
+
     public List<DeptLocations> getloadDeptLocationss() {
         return deptlocationss;
     }
@@ -324,7 +401,6 @@ public class DataModel {
         this.projects = ProjectDAO.loadDataFittered(condition);   // 데이터베이스에서 DeptLocations 정보 로드
     }
 
-    // 외부(예: 컨트롤러)에서 이 메서드를 호출하여 모델의 데이터를 가져올 수 있습니다.
     public List<Project> getloadProjects() {
         return projects;
     }

@@ -28,7 +28,7 @@ public class DatabaseUtils {
              Notifications.getInstance().show(Notifications.Type.ERROR,e.getMessage());
             //JOptionPane.showMessageDialog(null, e);
         }
-        return conn;  // 이제 연결 객체를 반환합니다.
+        return conn;  // 이제 연결 객체를 반환.
     }
     
     public static boolean try_login(LoginFormDataDTO logindata) {

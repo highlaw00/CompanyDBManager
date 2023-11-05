@@ -219,7 +219,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="jButton2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="DB &#xac31;&#xc2e0;"/>
+        <Property name="text" type="java.lang.String" value="&#xc9c1;&#xc6d0; &#xc815;&#xbcf4; &#xcd94;&#xac00;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton2ActionPerformed"/>
@@ -336,7 +336,7 @@
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="&#xb9d1;&#xc740; &#xace0;&#xb515;" size="14" style="0"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="&#xc9c1;&#xc6d0; &#xc815;&#xbcf4; &#xc218;&#xc815; "/>
+        <Property name="text" type="java.lang.String" value="&#xc9c1;&#xc6d0; &#xc815;&#xbcf4; &#xcd94;&#xac00; "/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="jButton3">

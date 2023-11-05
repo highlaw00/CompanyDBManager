@@ -14,8 +14,10 @@ import companydbmanagerant.model.Department.Department;
 import companydbmanagerant.model.Employee.Employee;
 import companydbmanagerant.model.LoginFormDataDTO;
 import companydbmanagerant.model.SQLQueryBuilder;
+import companydbmanagerant.model.TableModel.AllEditTableModel;
 import companydbmanagerant.model.TableModel.EmployeeTableModel;
 import companydbmanagerant.view.Main.EmployeeAddPanel;
+import companydbmanagerant.view.Main.EmployeeEditAllPanel;
 import companydbmanagerant.view.Main.EmployeeEditPanel;
 import companydbmanagerant.view.Main.FormDashboard;
 import companydbmanagerant.view.Main.QueryBuilderForm.QueryBuilderForm;
@@ -56,6 +58,7 @@ public class DataView extends javax.swing.JFrame {
     private QueryBuilderForm queryBuilderForm;
     private DataController controller;
 
+     private Modal emplyoeeAllEditModal;
     private Modal emplyoeeEditModal;
     private Modal emplyoeeAddModal;
     private Modal emplyoeeDelModal;
@@ -69,7 +72,7 @@ public class DataView extends javax.swing.JFrame {
         queryBuilderForm = null;
         mainForm = new MainForm();
         loginForm = new LoginForm();
-
+        addComboListeners();
         init();
     }
 
@@ -78,7 +81,7 @@ public class DataView extends javax.swing.JFrame {
     }
 
     private void init() {
-        setSize(new Dimension(1050, 600));
+        setSize(new Dimension(1050, 530));
         setContentPane(loginForm);
         Notifications.getInstance().setJFrame(this);
         FlatLaf.updateUI();
@@ -111,14 +114,38 @@ public class DataView extends javax.swing.JFrame {
         return "";
     }
 
-    public void updateEmployeeTable(EmployeeTableModel tableModel) {
+    public boolean updateEmployeeTable(EmployeeTableModel tableModel) {
         FormDashboard formDashboard = mainForm.getFormDashboard();
         formDashboard.getEmployeeTable().setModel(tableModel);
-        tableModel.setActiveColumns(formDashboard.getSelectedCheckBoxLabels());
-        // 컬럼 설정과 에디터 설정 로직
-        setTableColumnsAndEditors();
-        // 알림 로직
-        notifySuccess();
+
+        List<String> selectedLabels = formDashboard.getSelectedCheckBoxLabels();
+        if (selectedLabels.size() <= 1) {
+            Notifications.getInstance().show(Notifications.Type.ERROR, 2000, "컬럼을 하나이상 선택하셔야 합니다.");
+            tableModel.setActiveColumns(new ArrayList<String>());
+            return false;
+        } else {
+            tableModel.setActiveColumns(selectedLabels);
+            // 컬럼 설정과 에디터 설정 로직
+            setTableColumnsAndEditors();
+            // 알림 로직
+            notifySuccess();
+            return true;
+        }
+
+    }
+
+    //일괄검색에 대한 콤보박스 아이템 수정 
+    public void updateButtonState() {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.updateButtonState();
+        //임시로 넣음 
+        formDashboard.getjTextField1().setText("");
+
+    }
+
+    public void updateSearchComboBox() {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        setComboBox1ByActiveColumns(formDashboard.getSelectedCheckBoxLabels());
     }
 
     private List<String> getSelectedCheckBoxLabels() {
@@ -212,20 +239,20 @@ public class DataView extends javax.swing.JFrame {
         JComponent panel = emplyoeeAddModal.getModalPanel();
         Map<String, String> fieldTexts = new HashMap<>();
         if (panel instanceof EmployeeAddPanel) {
-            EmployeeAddPanel employeeEditPanel = (EmployeeAddPanel) panel;
-            // JComboBox의 선택된 아이템을 추출하고 그 값을 Map에 넣습니다.
-            fieldTexts.put("Dname", (String) employeeEditPanel.getComboDname().getSelectedItem());
-            fieldTexts.put("SEX", (String) employeeEditPanel.getComboSEX().getSelectedItem());
-            fieldTexts.put("SuperSSN", (String) employeeEditPanel.getComboSuperSSN().getSelectedItem());
+            EmployeeAddPanel employeeAddPanel = (EmployeeAddPanel) panel;
+            // JComboBox의 선택된 아이템을 추출하고 그 값을 Map에 넣음
+            fieldTexts.put("Dname", (String) employeeAddPanel.getComboDname().getSelectedItem());
+            fieldTexts.put("SEX", (String) employeeAddPanel.getComboSEX().getSelectedItem());
+            fieldTexts.put("SuperSSN", (String) employeeAddPanel.getComboSuperSSN().getSelectedItem());
 
-            // JTextField의 텍스트를 추출하고 그 값을 Map에 넣습니다.
-            fieldTexts.put("Address", employeeEditPanel.getTxtAddress().getText());
-            fieldTexts.put("Birth", employeeEditPanel.getTxtBirth().getText());
-            fieldTexts.put("FirstName", employeeEditPanel.getTxtFirstName().getText());
-            fieldTexts.put("LastName", employeeEditPanel.getTxtLastName().getText());
-            fieldTexts.put("Minit", employeeEditPanel.getTxtMinit().getText());
-            fieldTexts.put("SSN", employeeEditPanel.getTxtSSN().getText());
-            fieldTexts.put("Salary", employeeEditPanel.getTxtSalary().getText());
+            // JTextField의 텍스트를 추출하고 그 값을 Map에 넣음
+            fieldTexts.put("Address", employeeAddPanel.getTxtAddress().getText());
+            fieldTexts.put("Birth", employeeAddPanel.getTxtBirth().getText());
+            fieldTexts.put("Fname", employeeAddPanel.getTxtFirstName().getText());
+            fieldTexts.put("Lname", employeeAddPanel.getTxtLastName().getText());
+            fieldTexts.put("Minit", employeeAddPanel.getTxtMinit().getText());
+            fieldTexts.put("SSN", employeeAddPanel.getTxtSSN().getText());
+            fieldTexts.put("Salary", employeeAddPanel.getTxtSalary().getText());
         }
         return fieldTexts;
 
@@ -235,6 +262,7 @@ public class DataView extends javax.swing.JFrame {
         //성공시 해야할것
         //1. notify 알림
         notifyUpdateSuccess("DB에 새로운 직원이 삽입되었습니다.");
+        emplyoeeAddModal.getGlassPane().setVisible(false);
         //2. ....
     }
 
@@ -282,16 +310,16 @@ public class DataView extends javax.swing.JFrame {
         Map<String, String> fieldTexts = new HashMap<>();
         if (panel instanceof EmployeeEditPanel) {
             EmployeeEditPanel employeeEditPanel = (EmployeeEditPanel) panel;
-            // JComboBox의 선택된 아이템을 추출하고 그 값을 Map에 넣습니다.
+            // JComboBox의 선택된 아이템을 추출하고 그 값을 Map에 넣음
             fieldTexts.put("Dname", (String) employeeEditPanel.getComboDname().getSelectedItem());
             fieldTexts.put("SEX", (String) employeeEditPanel.getComboSEX().getSelectedItem());
             fieldTexts.put("SuperSSN", (String) employeeEditPanel.getComboSuperSSN().getSelectedItem());
 
-            // JTextField의 텍스트를 추출하고 그 값을 Map에 넣습니다.
+            // JTextField의 텍스트를 추출하고 그 값을 Map에 넣음
             fieldTexts.put("Address", employeeEditPanel.getTxtAddress().getText());
             fieldTexts.put("Birth", employeeEditPanel.getTxtBirth().getText());
-            fieldTexts.put("FirstName", employeeEditPanel.getTxtFirstName().getText());
-            fieldTexts.put("LastName", employeeEditPanel.getTxtLastName().getText());
+            fieldTexts.put("Fname", employeeEditPanel.getTxtFirstName().getText());
+            fieldTexts.put("Lname", employeeEditPanel.getTxtLastName().getText());
             fieldTexts.put("Minit", employeeEditPanel.getTxtMinit().getText());
             fieldTexts.put("SSN", employeeEditPanel.getTxtSSN().getText());
             fieldTexts.put("Salary", employeeEditPanel.getTxtSalary().getText());
@@ -331,6 +359,178 @@ public class DataView extends javax.swing.JFrame {
         Map<String, ActionListener> buttonListeners = new HashMap<>();
         buttonListeners.put("exitBtn", closeBtnListener);
         Modal modal = new Modal(this, queryBuilderForm, buttonListeners);
+    }
+    // ==========================================================
+    // 테이블 내의 검색 관련 
+    // ==========================================================
+
+    public void addTableSearchButtonListener(ActionListener listener) {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.getTableSearchBtn().addActionListener(listener);
+    }
+
+    public void setTableSearchPanelEnabled(boolean bool) {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.setTableSearchPanelEnabled(bool);
+
+    }
+
+    public void setComboBox1ByActiveColumns(List<String> selectedLabels) {
+        List<String> modifySelectedLabels;
+        if (selectedLabels.size() > 1) { // 리스트에 최소 두 개 이상의 요소가 있는지 확인.
+            modifySelectedLabels = selectedLabels.subList(1, selectedLabels.size());
+
+            FormDashboard formDashboard = mainForm.getFormDashboard();
+            JComboBox comboBox1 = formDashboard.getjComboBox1();
+            DataViewUtil.setComboBoxItems(comboBox1, modifySelectedLabels);
+        }
+    }
+
+    public void addComboListeners() {
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        JComboBox fieldCombo = formDashboard.getjComboBox1();
+        JComboBox operationCombo = formDashboard.getjComboBox2();
+        JComboBox valueOptionsComboBox = formDashboard.getjComboBox3();
+        JTextField valueField = formDashboard.getjTextField1();
+
+        fieldCombo.addActionListener(e -> {
+            Object items = fieldCombo.getSelectedItem();
+            if (items != null) {
+                String selectedItem = items.toString();
+                boolean useComboBoxForValue = "Sex".equals(selectedItem);
+
+                valueOptionsComboBox.setVisible(useComboBoxForValue);
+                valueField.setVisible(!useComboBoxForValue);
+
+                updateComboBoxBasedOnSelection(operationCombo, valueOptionsComboBox, selectedItem);
+                updateTextFieldBasedOnSelection(valueField, selectedItem);
+            }
+
+        });
+
+    }
+
+    public void handleComboBoxSelectionChanged(JComboBox<String> comboBox1, JComboBox<String> comboBox2, JComboBox<String> comboBox3, JTextField jTextField1) {
+        String selectedItem = comboBox1.getSelectedItem().toString();
+        updateComboBoxBasedOnSelection(comboBox2, comboBox3, selectedItem);
+        updateTextFieldBasedOnSelection(jTextField1, selectedItem);
+    }
+
+    private void updateTextFieldBasedOnSelection(JTextField textField, String selectedItem) {
+        boolean isVisible = !("Sex".equals(selectedItem));
+        DataViewUtil.setTextFieldVisible(textField, isVisible);
+    }
+
+    private void updateComboBoxBasedOnSelection(JComboBox<String> comboBox1, JComboBox<String> comboBox2, String selectedItem) {
+        // 첫 번째 콤보 박스에 대한 아이템 설정
+        List<String> newItemsForComboBox1 = generateItemsForComboBox1(selectedItem);
+        DataViewUtil.setComboBoxItems(comboBox1, newItemsForComboBox1);
+        //DataViewUtil.setComboBoxVisible(comboBox1, !newItemsForComboBox1.isEmpty());
+
+        // 두 번째 콤보 박스에 대한 아이템 설정
+        List<String> newItemsForComboBox2 = generateItemsForComboBox2(selectedItem);
+        DataViewUtil.setComboBoxItems(comboBox2, newItemsForComboBox2);
+        DataViewUtil.setComboBoxVisible(comboBox2, !newItemsForComboBox2.isEmpty());
+    }
+
+    private List<String> generateItemsForComboBox1(String selectedItem) {
+        List<String> newItems = new ArrayList<>();
+        switch (selectedItem) {
+            case "First Name":
+            case "Minit":
+            case "Last Name":
+            case "Address":
+            case "Dname":
+            case "SSN":
+            case "Super SSN":
+                newItems.add("=");
+                newItems.add("!=");
+                newItems.add("Contain");
+                break;
+
+            case "Sex":
+                newItems.add("=");
+                newItems.add("!=");
+                break;
+            case "Birth Date":
+            case "Salary":
+
+                newItems.add("=");
+                newItems.add(">");
+                newItems.add(">=");
+                newItems.add("<");
+                newItems.add("<=");
+                newItems.add("!=");
+                break;
+            default:
+
+        }
+        return newItems;
+    }
+
+    private List<String> generateItemsForComboBox2(String selectedItem) {
+        List<String> newItems = new ArrayList<>();
+        switch (selectedItem) {
+            case "Sex":
+                newItems.add("F");
+                newItems.add("M");
+                break;
+
+        }
+        return newItems;
+    }
+
+    public Map<String, String> getSearchConditon() {
+        Map<String, String> condition = new HashMap<>();
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        JComboBox fieldCombo = formDashboard.getjComboBox1();
+        JComboBox operationCombo = formDashboard.getjComboBox2();
+        JComboBox valueOptionsComboBox = formDashboard.getjComboBox3();
+        JTextField valueField = formDashboard.getjTextField1();
+        Object items = fieldCombo.getSelectedItem();
+        if (items != null) {
+            String selectedItem = items.toString();
+            boolean useComboBoxForValue = "Sex".equals(selectedItem);
+            condition.put("field", (String) fieldCombo.getSelectedItem());
+            condition.put("operation", (String) operationCombo.getSelectedItem());
+
+            if (!useComboBoxForValue) {
+                condition.put("value", (String) valueField.getText());
+            } else {
+                condition.put("value", (String) valueOptionsComboBox.getSelectedItem());
+            }
+        }
+        return condition;
+    }
+
+    // ==========================================================
+    // 일괄 수정 패널 관련
+    // ==========================================================
+    public void showEditAllDialog(AllEditTableModel allEditTableModel, List<Department> departments, List<String> notSubordinates, ActionListener listener) {
+        Map<String, ActionListener> buttonListeners = new HashMap<>();
+        buttonListeners.put("exitBtnCircle", null);
+        buttonListeners.put("executeBtn", listener);
+        List<String> activecolumns = new ArrayList<String>();
+        activecolumns.add("Full Name");
+        activecolumns.add("SSN");
+        activecolumns.add("Fname");
+        activecolumns.add("-> 변경될 내용");
+        allEditTableModel.setActiveColumns(activecolumns);
+        emplyoeeAllEditModal = new Modal(this, new EmployeeEditAllPanel(allEditTableModel, departments, notSubordinates), buttonListeners);
+    }
+
+    public void addAllEditButtonListener(ActionListener listener) {
+
+        FormDashboard formDashboard = mainForm.getFormDashboard();
+        formDashboard.getAllEditBtn().addActionListener(listener);
+
+    }
+
+    public void whenEmployeeAllAddingSuccess() {
+        //성공시 해야할것
+        //1. notify 알림
+        emplyoeeAllEditModal.getGlassPane().setVisible(false);
+        //2. ....
     }
 
     // ==========================================================
@@ -394,15 +594,15 @@ public class DataView extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public void showGUI() {
-        // GUI 요소가 준비된 후에 텍스트 필드에 포커스를 설정합니다.
+
         pack();
         setVisible(true);
 
-        // GUI 이벤트 처리 스레드에서 실행될 작업을 예약
+  
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                JTextField textField = loginForm.getTxtPass(); // LoginForm 내부의 텍스트 필드 접근 메서드가 필요합니다.
+                JTextField textField = loginForm.getTxtPass(); 
                 textField.requestFocusInWindow();
             }
         });

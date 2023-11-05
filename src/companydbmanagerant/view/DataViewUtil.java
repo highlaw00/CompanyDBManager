@@ -23,12 +23,35 @@ public class DataViewUtil {
     }
 
     // 콤보 박스의 가시성을 설정하는 메서드
+    public static void setComboBoxEnabled(JComboBox<String> comboBox2, String selectedItem) {
+
+        switch (selectedItem) {
+            case "Fname":
+            case "Minit":
+            case "Lname":
+            case "Address":
+            case "Dname":
+            case "Super_ssn":
+            case "Sex":
+            case "Bdate":
+                comboBox2.setEnabled(false);
+                break;
+
+            case "Salary":
+                comboBox2.setEnabled(true);
+                break;
+            default:
+
+        }
+
+    }
+
+    // 콤보 박스의 가시성을 설정하는 메서드
     public static void setComboBoxVisible(JComboBox<String> comboBox, boolean isVisible) {
         comboBox.setVisible(isVisible);
     }
-    
+
     public static void setTextFieldVisible(JTextField textField, boolean isVisible) {
         textField.setVisible(isVisible);
     }
 }
-
