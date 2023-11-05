@@ -433,12 +433,12 @@ public class EmployeeDAO {
             conn = DatabaseUtils.connect();
 
             // 새로운 루트 직원의 직속 상사 Null로 변환
-            String updateHeritorSupervisorNullSql = "UPDATE EMPLOYEE SET Super_ssn=NULL WHERE Ssn=" + heritorSsn;
+            String updateHeritorSupervisorNullSql = "UPDATE EMPLOYEE SET Super_ssn=NULL, modified=CURRENT_TIMESTAMP() WHERE Ssn=" + heritorSsn;
             pstmt = conn.prepareStatement(updateHeritorSupervisorNullSql);
             pstmt.executeUpdate();
 
             // 기존 루트 직원의 부하들의 직속 상사를 새로운 루트 직원으로 변경
-            String changePrevSupervisorToNewRoot = "UPDATE EMPLOYEE SET Super_ssn=" + heritorSsn + " WHERE Super_ssn=" + originRootSsn;
+            String changePrevSupervisorToNewRoot = "UPDATE EMPLOYEE SET Super_ssn=" + heritorSsn + ", modified=CURRENT_TIMESTAMP() WHERE Super_ssn=" + originRootSsn;
             pstmt = conn.prepareStatement(changePrevSupervisorToNewRoot);
             pstmt.executeUpdate();
 
@@ -448,7 +448,13 @@ public class EmployeeDAO {
             pstmt.executeUpdate();
 
             // 기존 루트 직원이 매니저로 있던 부서의 매니저 변경
-            String changeDepartmentMangerSql = "UPDATE DEPARTMENT SET Mgr_ssn=" + heritorSsn + " WHERE Mgr_ssn=" + originRootSsn;
+            // Manage Start Date도 변경
+            java.util.Date currentDate = new java.util.Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String quote = "\"";
+            String formattedManagingStartDate = quote + dateFormat.format(currentDate) + quote;
+
+            String changeDepartmentMangerSql = "UPDATE DEPARTMENT SET Mgr_ssn=" + heritorSsn + ",Mgr_start_date=" + formattedManagingStartDate + " WHERE Mgr_ssn=" + originRootSsn;
             pstmt = conn.prepareStatement(changeDepartmentMangerSql);
             pstmt.executeUpdate();
 
@@ -490,7 +496,7 @@ public class EmployeeDAO {
             String superSsnOfTargetEmployee = employee.getSuperSsn();
 
             // String findSuperviseSql = "SELECT * FROM EMPLOYEE WHERE Super_ssn=" + ssnOfTargetEmployee;
-            String updateSql = "UPDATE EMPLOYEE SET Super_Ssn=" + superSsnOfTargetEmployee + " WHERE Super_Ssn=" + ssnOfTargetEmployee;
+            String updateSql = "UPDATE EMPLOYEE SET Super_Ssn=" + superSsnOfTargetEmployee + ", modified=CURRENT_TIMESTAMP() WHERE Super_Ssn=" + ssnOfTargetEmployee;
             pstmt = conn.prepareStatement(updateSql);
             pstmt.executeUpdate();
 
@@ -503,7 +509,14 @@ public class EmployeeDAO {
         PreparedStatement pstmt = null;
 
         try {
-            String sql = "UPDATE DEPARTMENT SET Mgr_Ssn=DEFAULT WHERE Mgr_Ssn=" + employee.getSsn();
+            java.util.Date currentDate = new java.util.Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String quote = "\"";
+            String formattedManagingStartDate = quote + dateFormat.format(currentDate) + quote;
+
+            System.out.println(formattedManagingStartDate);
+
+            String sql = "UPDATE DEPARTMENT SET Mgr_Ssn=DEFAULT, Mgr_start_date=" + formattedManagingStartDate + " WHERE Mgr_Ssn=" + employee.getSsn();
             pstmt = conn.prepareStatement(sql);
 
             pstmt.executeUpdate();
