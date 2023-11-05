@@ -65,6 +65,10 @@ public class Modal {
         };
     }
 
+    public JComponent getGlassPane(){
+        return glassPane;
+    }
+    
     private void initialize() {
         setupGlassPane();
         setupModalPanel();

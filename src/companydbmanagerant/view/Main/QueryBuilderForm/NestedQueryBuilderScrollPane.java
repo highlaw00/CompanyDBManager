@@ -211,8 +211,6 @@ public class NestedQueryBuilderScrollPane extends JScrollPane {
         conditionNode.setOperation((String) operationCombo.getSelectedItem());
         conditionNode.setValue(valueField.getText());
 
-        // Register the action listener that will handle the interaction logic
-        ActionListener comboBoxInteractionListener = e -> handleComboBoxSelectionChanged(fieldCombo, operationCombo, valueOptionsComboBox, valueField);
 
         // 조건문 세부 정보 설정
         ActionListener detailSetter = e -> {
@@ -312,7 +310,7 @@ public class NestedQueryBuilderScrollPane extends JScrollPane {
             case "Minit":
             case "Last Name":
             case "Address":
-                // 'LIKE' operator is useful for string pattern matching
+                
                 newItems.add("=");
                 newItems.add("!=");
                 newItems.add("LIKE");
@@ -321,13 +319,13 @@ public class NestedQueryBuilderScrollPane extends JScrollPane {
             case "SSN":
             case "Sex":
             case "Super SSN":
-                // These fields are typically exact values, so 'LIKE' may not be as useful.
+         
                 newItems.add("=");
                 newItems.add("!=");
                 break;
             case "Birth Date":
             case "Salary":
-                // For numerical and date fields, the 'LIKE' operator is generally not used.
+       
                 newItems.add("=");
                 newItems.add(">");
                 newItems.add(">=");
@@ -336,7 +334,7 @@ public class NestedQueryBuilderScrollPane extends JScrollPane {
                 newItems.add("!=");
                 break;
             default:
-            // No default action or you can add some default operators if required
+   
         }
         return newItems;
     }
@@ -354,7 +352,7 @@ public class NestedQueryBuilderScrollPane extends JScrollPane {
                     newItems.add(department);
                 }
                 break;
-            // ... (필요한 경우 추가 case 구문을 여기에 배치할 수 있습니다.)
+            
         }
         return newItems;
     }

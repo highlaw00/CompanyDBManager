@@ -26,9 +26,9 @@ public class ProjectDAO {
         ResultSet rs = null;
 
         try {
-            conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옵니다.
+            conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옴
             System.out.println("DB CONNECTED");
-            // 쿼리 준비. 여기서는 모든 직원을 선택합니다.
+            // 쿼리 준비. 여기서는 모든 직원을 선택함.
             String sql = "SELECT * FROM project " + condition;
             pstmt = conn.prepareStatement(sql);
 
@@ -77,9 +77,9 @@ public class ProjectDAO {
         ResultSet rs = null;
 
         try {
-            conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옵니다.
+            conn = DatabaseUtils.connect();  // 데이터베이스 연결을 가져옴
             System.out.println("DB CONNECTED");
-            // 쿼리 준비. 여기서는 모든 직원을 선택합니다.
+            // 쿼리 준비. 여기서는 모든 직원을 선택함
             String sql = "SELECT * FROM project ";
             pstmt = conn.prepareStatement(sql);
 

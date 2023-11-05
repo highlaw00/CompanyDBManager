@@ -8,7 +8,6 @@ import com.formdev.flatlaf.FlatClientProperties;
 import companydbmanagerant.model.TableModel.EmployeeTableModel;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -18,8 +17,6 @@ import java.awt.Shape;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -30,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -37,14 +35,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.plaf.LayerUI;
 import javax.swing.table.TableModel;
-import raven.toast.Notifications;
 
 /**
  *
@@ -77,20 +73,84 @@ public class FormDashboard extends javax.swing.JPanel {
         EmployeeTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         EmployeeDelBtn.setEnabled(false);
         EmployeeEditBtn.setEnabled(false);
+
+        jTextField1.setVisible(false);
         setTableListener();
+        setTableListeners();
         setTablePopupMenu();
         setDrawCellEdited();
     }
 
+    private void setTableListeners() {
+        // TableModel에 대한 listener 추가
+        EmployeeTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                updateButtonState();
+            }
+        });
+
+        EmployeeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    updateButtonState();
+                }
+            }
+        });
+    }
+
+    public void updateButtonState() {
+        boolean isAnyRowChecked = false;
+        if (EmployeeTable.getModel() == null) {
+            tableSearchBtn.setEnabled(false); // 모델이 없다면 버튼을 비활성화
+            allEditBtn.setEnabled(false);
+            return;
+        }
+
+        EmployeeTableModel model = (EmployeeTableModel) EmployeeTable.getModel();
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Boolean isChecked = (Boolean) model.getValueAt(i, 0);
+            if (isChecked != null && isChecked) {
+                isAnyRowChecked = true;
+                break;
+            }
+        }
+
+        // 조건에 따라 allEditBtn의 활성화 상태를 변경
+        allEditBtn.setEnabled(isAnyRowChecked);
+    }
+
     private void setTablePopupMenu() {
         JPopupMenu contextMenu = new JPopupMenu();
+        JMenuItem selectChecked = new JMenuItem("선택 체크");
+        selectChecked.addActionListener(e -> {
+            int[] selectedRows = EmployeeTable.getSelectedRows();
+            for (int selectedRow : selectedRows) {
+                EmployeeTable.setValueAt(true, selectedRow, 0); // 첫 번째 열이 체크 박스라고 가정
+            }
+            updateButtonState();
+        });
+        contextMenu.add(selectChecked);
 
+        JMenuItem deselectChecked = new JMenuItem("선택 체크 해제");
+        deselectChecked.addActionListener(e -> {
+            
+            int[] selectedRows = EmployeeTable.getSelectedRows();
+            for (int selectedRow : selectedRows) {
+                EmployeeTable.setValueAt(false, selectedRow, 0); // 첫 번째 열이 체크 박스라고 가정
+            }
+             updateButtonState();
+        });
+        contextMenu.add(deselectChecked);
         // 메뉴 아이템 생성 및 액션 리스너 추가
         JMenuItem selectAll = new JMenuItem("전체 체크");
         selectAll.addActionListener(e -> {
             for (int i = 0; i < EmployeeTable.getRowCount(); i++) {
                 EmployeeTable.setValueAt(true, i, 0); // 첫 번째 열이 선택 상태를 나타내는 것으로 가정
             }
+             updateButtonState();
         });
         contextMenu.add(selectAll);
 
@@ -99,26 +159,9 @@ public class FormDashboard extends javax.swing.JPanel {
             for (int i = 0; i < EmployeeTable.getRowCount(); i++) {
                 EmployeeTable.setValueAt(false, i, 0); // 첫 번째 열이 선택 상태를 나타내는 것으로 가정
             }
+             updateButtonState();
         });
         contextMenu.add(deselectAll);
-
-        JMenuItem selectChecked = new JMenuItem("선택 체크");
-        selectChecked.addActionListener(e -> {
-            int[] selectedRows = EmployeeTable.getSelectedRows();
-            for (int selectedRow : selectedRows) {
-                EmployeeTable.setValueAt(true, selectedRow, 0); // 첫 번째 열이 체크 박스라고 가정
-            }
-        });
-        contextMenu.add(selectChecked);
-     
-        JMenuItem deselectChecked = new JMenuItem("선택 체크 해제");
-        deselectChecked.addActionListener(e -> {
-            int[] selectedRows = EmployeeTable.getSelectedRows();
-            for (int selectedRow : selectedRows) {
-                EmployeeTable.setValueAt(false, selectedRow, 0); // 첫 번째 열이 체크 박스라고 가정
-            }
-        });
-        contextMenu.add(deselectChecked);
 
         EmployeeTable.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -163,7 +206,7 @@ public class FormDashboard extends javax.swing.JPanel {
         EmployeeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                // getValueIsAdjusting()은 이벤트가 한 번만 처리되도록 도와줍니다.
+                // getValueIsAdjusting는 이벤트가 한 번만 처리되도록 해줌
                 if (!e.getValueIsAdjusting()) {
                     // 선택된 행의 개수 확인
                     int[] selectedRows = EmployeeTable.getSelectedRows();
@@ -244,15 +287,15 @@ public class FormDashboard extends javax.swing.JPanel {
                                 int stringHeight = fm.getHeight();
                                 float borderWidth = 1.2f;
                                 g2d.setStroke(new BasicStroke(borderWidth));
-                                // 현재 그리기 상태를 저장합니다.
+                                // 현재 그리기 상태를 저장
                                 Shape oldClip = g2d.getClip();
 
-                                // 상자의 하단 절반만 그리기 위한 클리핑 영역을 설정합니다.
+                                // 상자의 하단 절반만 그리기 위해서 클리핑 영역을 설정
                                 g2d.clipRect(cellRect.x + xOffset - 5, yOffset + headerHeight, cellRect.width + 1 + 10, cellRect.height - yOffset + headerHeight - cellRect.y);
                                 g2d.setColor(new Color(23, 88, 189));
-                                // 상자를 그립니다. 이제 상자의 윗 부분은 그려지지 않습니다.
+                                // 상자를 그립니다. 
                                 g2d.drawRoundRect(cellRect.x + xOffset, cellRect.y + yOffset + headerHeight, cellRect.width + 1, cellRect.height + 1, 6, 6);
-                                // 이전 그리기 상태로 복원합니다.
+                                // 이전 그리기 상태로 복원
                                 g2d.setClip(oldClip);
                             } else {
                                 // System.out.println(cellRect.y);
@@ -276,9 +319,6 @@ public class FormDashboard extends javax.swing.JPanel {
             }
         });
 
-        // Remove the original jScrollPane1 from the container.
-//        DbMonitorPanel.remove(jScrollPane1);
-        // Create a JLayer using the jScrollPane1 and the custom layerUI.
         jlayer = new JLayer<>(jScrollPane1, layerUI);
 
         // DbMonitorPanel의 현재 GroupLayout 가져오기
@@ -333,16 +373,6 @@ public class FormDashboard extends javax.swing.JPanel {
                 String text = texts.get(i);
                 checkBox.setText(text); // 체크박스의 텍스트 설정
 
-//                FontMetrics metrics = checkBox.getGraphics().getFontMetrics(checkBox.getFont());
-//                // 텍스트의 픽셀 기반 너비 계산
-//                int textWidth = metrics.stringWidth(checkBox.getText());
-//
-//                // 패딩이나 마진을 위한 추가 공간 (필요에 따라 조절)
-//                int padding = 10; // 이 값은 UI 디자인에 따라 조정할 수 있습니다.   
-//                // 새로운 선호하는 크기 설정
-//                checkBox.setPreferredSize(new Dimension(textWidth + padding, checkBox.getPreferredSize().height));
-//                checkBox.revalidate();
-//                checkBox.repaint();
             }
         } else {
             throw new IllegalStateException("체크박스와 텍스트의 수가 일치하지 않습니다.");
@@ -369,11 +399,10 @@ public class FormDashboard extends javax.swing.JPanel {
 
     }
 
-    public void addjButton2Listener(ActionListener listener) {
-        jButton2.addActionListener(listener);
-
-    }
-
+//    public void addjButton2Listener(ActionListener listener) {
+//        jButton2.addActionListener(listener);
+//
+//    }
     public void addCheckBoxListeners(ItemListener checkBoxItemListener) {
         ItemListener itemListener = checkBoxItemListener;
         for (JCheckBox checkBox : checkBoxList) {
@@ -384,6 +413,16 @@ public class FormDashboard extends javax.swing.JPanel {
     public void addFilterBtnListener(ActionListener listener) {
         filterBtn.addActionListener(listener);
 
+    }
+
+    public void setTableSearchPanelEnabled(boolean bool) {
+        allEditLabel.setEnabled(bool);
+        allEditBtn.setEnabled(bool);
+        tableSearchBtn.setEnabled(bool);
+        jComboBox1.setEnabled(bool);
+        jComboBox2.setEnabled(bool);
+        jComboBox3.setEnabled(bool);
+        jTextField1.setEnabled(bool);
     }
 
     /**
@@ -414,16 +453,14 @@ public class FormDashboard extends javax.swing.JPanel {
         filterBtn = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         SearchConditionPanel1 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        jComboBox4 = new javax.swing.JComboBox<>();
-        jComboBox5 = new javax.swing.JComboBox<>();
-        jTextField3 = new javax.swing.JTextField();
-        jComboBox6 = new javax.swing.JComboBox<>();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        allEditLabel = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jComboBox2 = new javax.swing.JComboBox<>();
+        jTextField1 = new javax.swing.JTextField();
+        jComboBox3 = new javax.swing.JComboBox<>();
+        jPanel2 = new javax.swing.JPanel();
+        tableSearchBtn = new javax.swing.JButton();
+        allEditBtn = new javax.swing.JButton();
         EmployeeAddBtn = new javax.swing.JButton();
         EmployeeEditBtn = new javax.swing.JButton();
         EmployeeDelBtn = new javax.swing.JButton();
@@ -574,120 +611,117 @@ public class FormDashboard extends javax.swing.JPanel {
 
         add(SearchConditionPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 6, 1020, -1));
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("조회된 DB내에서의 조건검색 후 체크 활성화"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.setDoubleBuffered(false);
+        jPanel1.setEnabled(false);
 
         SearchConditionPanel1.setBackground(new java.awt.Color(255, 51, 51));
         SearchConditionPanel1.setOpaque(false);
 
-        jLabel3.setText("검색할 헤더");
+        allEditLabel.setText("테이블 내 검색하기");
+        allEditLabel.setEnabled(false);
 
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "전체", "First Name", "Minit", "Last Name", "SSN", "Birth Date", "Address", "Sex", "Salary", "Super SSN", "Dname" }));
-        jComboBox4.addActionListener(new java.awt.event.ActionListener() {
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "First Name", "Minit", "Last Name", "SSN", "Birth Date", "Address", "Sex", "Salary", "Super SSN", "Dname" }));
+        jComboBox1.setEnabled(false);
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox4ActionPerformed(evt);
+                jComboBox1ActionPerformed(evt);
             }
         });
 
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "=" }));
-        jComboBox5.addActionListener(new java.awt.event.ActionListener() {
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "=" }));
+        jComboBox2.setEnabled(false);
+        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox5ActionPerformed(evt);
+                jComboBox2ActionPerformed(evt);
             }
         });
 
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+        jTextField1.setEnabled(false);
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
+                jTextField1ActionPerformed(evt);
             }
         });
 
-        jComboBox6.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "=" }));
-        jComboBox6.addActionListener(new java.awt.event.ActionListener() {
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "=" }));
+        jComboBox3.setEnabled(false);
+        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox6ActionPerformed(evt);
+                jComboBox3ActionPerformed(evt);
             }
         });
 
-        jButton2.setText("전체에서 검색");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        tableSearchBtn.setText("테이블 내에서 검색 후 체크");
+        tableSearchBtn.setEnabled(false);
+        tableSearchBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                tableSearchBtnActionPerformed(evt);
             }
         });
 
-        jButton3.setText("전체 선택");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        allEditBtn.setText("체크된 것 일괄 수정");
+        allEditBtn.setEnabled(false);
+        allEditBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                allEditBtnActionPerformed(evt);
             }
         });
 
-        jButton4.setText("선택에서 검색");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-
-        jButton5.setText("전체 해제");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-
-        jButton6.setText("선택 반전");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
-            }
-        });
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(tableSearchBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(allEditBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(30, Short.MAX_VALUE)
+                .addComponent(tableSearchBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(allEditBtn)
+                .addGap(18, 18, 18))
+        );
 
         javax.swing.GroupLayout SearchConditionPanel1Layout = new javax.swing.GroupLayout(SearchConditionPanel1);
         SearchConditionPanel1.setLayout(SearchConditionPanel1Layout);
         SearchConditionPanel1Layout.setHorizontalGroup(
             SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(SearchConditionPanel1Layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addContainerGap(12, Short.MAX_VALUE)
                 .addGroup(SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 165, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(allEditLabel)
                     .addGroup(SearchConditionPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(472, 472, 472))
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         SearchConditionPanel1Layout.setVerticalGroup(
             SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(SearchConditionPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3)
-                    .addComponent(jButton6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton4)
-                    .addComponent(jButton5))
+                .addGroup(SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(SearchConditionPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(allEditLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(SearchConditionPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -696,18 +730,15 @@ public class FormDashboard extends javax.swing.JPanel {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(SearchConditionPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 52, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(SearchConditionPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(SearchConditionPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 410, 925, -1));
+        add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 360, 710, 110));
         jPanel1.getAccessibleContext().setAccessibleName("");
 
         EmployeeAddBtn.setText("직원 추가");
@@ -747,43 +778,6 @@ public class FormDashboard extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_jCheckBox2ActionPerformed
 
-    private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox4ActionPerformed
-
-    private void jComboBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox5ActionPerformed
-
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3ActionPerformed
-
-    private void jComboBox6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox6ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton6ActionPerformed
-
     private void EmployeeAddBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmployeeAddBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_EmployeeAddBtnActionPerformed
@@ -795,6 +789,30 @@ public class FormDashboard extends javax.swing.JPanel {
     private void EmployeeDelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmployeeDelBtnActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_EmployeeDelBtnActionPerformed
+
+    private void tableSearchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tableSearchBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tableSearchBtnActionPerformed
+
+    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox3ActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox2ActionPerformed
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void allEditBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allEditBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_allEditBtnActionPerformed
 
     public JButton getEmployeeAddBtn() {
         return EmployeeAddBtn;
@@ -836,10 +854,38 @@ public class FormDashboard extends javax.swing.JPanel {
         return filterBtn;
     }
 
+    public JButton getAllEditBtn() {
+        return allEditBtn;
+    }
+
+    public JLabel getAllEditLabel() {
+        return allEditLabel;
+    }
+
+    public JComboBox<String> getjComboBox1() {
+        return jComboBox1;
+    }
+
+    public JComboBox<String> getjComboBox2() {
+        return jComboBox2;
+    }
+
+    public JComboBox<String> getjComboBox3() {
+        return jComboBox3;
+    }
+
+    public JTextField getjTextField1() {
+        return jTextField1;
+    }
+
+    public JButton getTableSearchBtn() {
+        return tableSearchBtn;
+    }
+
     public List<String> getSelectedCheckBoxLabels() {
         List<String> selectedLabels = new ArrayList<>();
         selectedLabels.add("Selected");
-        for (JCheckBox checkBox : checkBoxList) { // checkBoxList는 여러분의 체크박스 리스트 변수명이어야 합니다.
+        for (JCheckBox checkBox : checkBoxList) { 
             if (checkBox.isSelected()) {
                 selectedLabels.add(checkBox.getText());
             }
@@ -856,12 +902,9 @@ public class FormDashboard extends javax.swing.JPanel {
     private javax.swing.JButton RetrieveDBBtn;
     private javax.swing.JPanel SearchConditionPanel;
     private javax.swing.JPanel SearchConditionPanel1;
+    private javax.swing.JButton allEditBtn;
+    private javax.swing.JLabel allEditLabel;
     private javax.swing.JButton filterBtn;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox10;
     private javax.swing.JCheckBox jCheckBox2;
@@ -872,12 +915,13 @@ public class FormDashboard extends javax.swing.JPanel {
     private javax.swing.JCheckBox jCheckBox7;
     private javax.swing.JCheckBox jCheckBox8;
     private javax.swing.JCheckBox jCheckBox9;
-    private javax.swing.JComboBox<String> jComboBox4;
-    private javax.swing.JComboBox<String> jComboBox5;
-    private javax.swing.JComboBox<String> jComboBox6;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField1;
+    private javax.swing.JButton tableSearchBtn;
     // End of variables declaration//GEN-END:variables
 }

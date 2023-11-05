@@ -11,6 +11,7 @@ package companydbmanagerant.model.Employee;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class EmployeeUtils {
@@ -18,14 +19,65 @@ public class EmployeeUtils {
     // Define date format
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // Adjust the format according to your needs
 
+    public static Map<String, String> findDiffEmployeeInfo(Employee prev, Employee changed) {
+        Map<String, String> diff = new HashMap<>();
+
+        if (!prev.getFname().equals(changed.getFname())) {
+            diff.put("Fname", changed.getFname());
+        }
+
+        if (!prev.getMinit().equals(changed.getMinit())) {
+            diff.put("Minit", changed.getMinit());
+        }
+
+        if (!prev.getLname().equals(changed.getLname())) {
+            diff.put("Lname", changed.getLname());
+        }
+
+        if (!prev.getSsn().equals(changed.getSsn())) {
+            diff.put("Ssn", changed.getSsn());
+        }
+
+        if (!prev.getBdate().equals(changed.getBdate())) {
+            diff.put("Bdate", changed.getBdate().toString());
+        }
+
+        if (prev.getAddress() == null && changed.getAddress() != null
+                || prev.getAddress() != null && !prev.getAddress().equals(changed.getAddress())) {
+            diff.put("Address", changed.getAddress() == null ? null : changed.getAddress());
+        }
+
+        if (!prev.getSex().equals(changed.getSex())) {
+            diff.put("Sex", changed.getSex());
+        }
+
+        if (prev.getSalary() == null && changed.getSalary() != null || prev.getSalary() != null && !prev.getSalary().equals(changed.getSalary())) {
+            diff.put("Salary", changed.getSalary() == null ? null : changed.getSalary().toString());
+        }
+        if (prev.getSuperSsn() == null && changed.getSuperSsn() != null || prev.getSuperSsn() != null && !prev.getSuperSsn().equals(changed.getSuperSsn())) {
+            diff.put("Super_Ssn", changed.getSuperSsn() == null ? null : changed.getSuperSsn());
+        }
+
+        if (prev.getDno() != changed.getDno()) {
+            diff.put("Dno", Integer.toString(changed.getDno()));
+        }
+
+        return diff;
+    }
+
     public static Employee createEmployeeFromMap(Map<String, String> fieldTexts) throws ParseException {
         // Extract and convert fields from the map
-        String fname = fieldTexts.get("FirstName");
+        String fname = fieldTexts.get("Fname");
         String minit = fieldTexts.get("Minit");
-        String lname = fieldTexts.get("LastName");
+        String lname = fieldTexts.get("Lname");
         String ssn = fieldTexts.get("SSN");
         Date bdate = convertToDate(fieldTexts.get("Birth"));
+        
         String address = fieldTexts.get("Address");
+        if ("".equals(address)) {
+            address = null;
+        }
+
         String sex = fieldTexts.get("SEX");
         Double salary = null;
         String salaryString = fieldTexts.get("Salary");
@@ -38,14 +90,17 @@ public class EmployeeUtils {
             }
         }
         String superSsn = fieldTexts.get("SuperSSN");
-        // Assuming dno is a fixed value, as there is no key in the map provided.
-        int dno = 1; // Replace with the actual department number if available
-        // Assuming created and modified dates are set to current date for new employee
-        Date created = new Date(); // Replace with actual created date if available
-        Date modified = new Date(); // Replace with actual modified date if available
+        if ("".equals(superSsn)) {
+            superSsn = null;
+        }
+        
+        int dno = 1; // 나중에 Employee.setDname을 통해서 받아야함 
+
+        Date created = new Date(); 
+        Date modified = new Date(); 
         String dname = fieldTexts.get("Dname");
 
-        // Create the Employee object
+        // 새 객체를 생성 
         return new Employee(fname, minit, lname, ssn, bdate, address, sex, salary, superSsn, dno, created, modified, dname);
     }
 
